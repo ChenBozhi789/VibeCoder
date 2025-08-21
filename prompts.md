@@ -18,3 +18,14 @@ Do we need to parameterize our template in `templates/react-simple-spa`?
 After we create our app, how can we iterate on it and change it? What is the best way to enable an agent to edit files without burning through tokens?
 
 Then ultrathink about how to implement this and write your plan to a file like `plans/2025_08_21_plan_name.md`
+
+
+---
+
+The entire `gemini-cli` github repo has been downloaded to the `gemini-cli/` folder.
+
+Please inspect the `packages/core/src/tools` directory to understand how gemini-cli makes efficient edits to source files. Then ultrathink about how to implement similar tools for smolagents and write your plan to `/plans/2025_08_21_smolagent_edit_tools.md`
+
+Then update `/plans/2025_08_21_smolagent_template_generator.md` to focus on generating apps from templates only.
+
+---
