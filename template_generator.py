@@ -2,11 +2,9 @@ import shutil
 import os
 import json
 from pathlib import Path
-from smolagents import tool
 from app_spec import AppSpec
 
 
-@tool
 def generate_app_from_template(
     app_name: str,
     display_name: str,

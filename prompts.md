@@ -56,3 +56,8 @@ Please review `plans/2025_08_21_smolagent_template_generator.md` and `plans/2025
 ---
 
 Use the `context7` tool to lookup `/openai/openai-python` and then evaluate how to implement it.
+
+---
+
+Great! Now please write PROGRESS.md with progress and design decsisions. We'll share this with the next developer to pick up the code.
+
