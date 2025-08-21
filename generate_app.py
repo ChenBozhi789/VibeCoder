@@ -1,48 +1,80 @@
 import os
+from dotenv import load_dotenv
 from am_tools import read_file, write_file, mkdir, list_files
-from smolagents import CodeAgent, WebSearchTool # InferenceClientModel
+from smolagents import CodeAgent, WebSearchTool
 from smolagents.models import OpenAIServerModel
-from prompts.prompt_manager import PromptManager
+from template_generator import generate_app_from_template
+from app_spec import AppSpec
+
+# Load environment variables from .env file
+load_dotenv()
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-# 主函数：渲染提示词并运行 CodeAgent
 def main():
-    # Initialize the prompt manager
-    prompt_manager = PromptManager()  # 初始化提示词管理器，用于渲染模板
-
-    # Example usage with template variables
-    app_name = "my_awesome_app"  # 应用名称示例
-    app_description = "A modern React application for task management"  # 应用描述示例
-    additional_requirements = [  # 额外需求列表
-        "Use functional React components",
-        "Implement responsive design",
-        "Include dark/light theme toggle"
-    ]
-    tech_stack = "React 19, Vite, Shadcn UI, Tailwind CSS"  # 技术栈说明
-
-    # Generate the prompt using Jinja2 templates
-    prompt = prompt_manager.render_main_prompt(  # 使用模板渲染出完整的提示词
-        app_name=app_name,
-        app_description=app_description,
-        additional_requirements=additional_requirements,
-        tech_stack=tech_stack,
-        feature_name="TaskManager"
+    """Generate React app using template-based approach with smolagents."""
+    
+    # Create app specification
+    app_spec = AppSpec(
+        app_name="task-manager-app",
+        display_name="Task Manager",
+        description="A modern React task management application with localStorage persistence",
+        author="VibeCoder",
+        template_name="react-simple-spa",
+        output_dir="result",
+        custom_content='''<h1 className="text-4xl font-bold">Task Manager</h1>
+      <p className="text-lg text-gray-600 mb-8">Organize your tasks efficiently</p>
+      <Button>Get Started</Button>''',
+        features=["localStorage", "responsive", "dark-mode"]
     )
 
-    # model = InferenceClientModel()  # 初始化推理模型客户端
-    agent = CodeAgent(  # 初始化智能体，配置工具和模型
-        tools=[read_file, write_file, list_files, mkdir], # WebSearchTool()
+    # Initialize CodeAgent with template generator tool
+    agent = CodeAgent(
+        tools=[
+            # Template generation
+            generate_app_from_template,
+            # File system operations
+            read_file, 
+            write_file, 
+            list_files, 
+            mkdir
+        ],
         model=OpenAIServerModel("gpt-5"),
-        stream_outputs=False,  # 关闭流式
-        additional_authorized_imports=["subprocess"],
+        stream_outputs=False,
+        additional_authorized_imports=["subprocess", "shutil", "json", "re"],
     )
 
-    agent.run(prompt)  # 执行提示词，触发应用生成流程
+    # Create the prompt for the agent
+    prompt = f"""
+Generate a React application using the template system with the following specifications:
 
-    # https://huggingface.co/docs/smolagents/v1.21.0/en/guided_tour#codeagent
-    # TestAgent = CodeAgent() # Confirms the code is working (run tests / linter / open it in a headless browser)  # 初始化智能体，配置工具和模型
+App Name: {app_spec.app_name}
+Display Name: {app_spec.display_name}
+Description: {app_spec.description}
+Template: {app_spec.template_name}
+Output Directory: {app_spec.output_dir}
+
+Use the generate_app_from_template tool with the AppSpec to create the base application.
+After generation, you may enhance the application with additional features as needed.
+
+The generated app should be a complete, working React application that can be run with:
+cd {app_spec.output_dir}/{app_spec.app_name} && npm install && npm run dev
+"""
+
+    print(f"🚀 Generating React app: {app_spec.display_name}")
+    print(f"📍 Output location: {app_spec.output_dir}/{app_spec.app_name}")
+    
+    # Run the agent
+    try:
+        result = agent.run(prompt)
+        print("✅ App generation completed!")
+        print(f"🎯 Your app is ready in: {app_spec.output_dir}/{app_spec.app_name}")
+        print(f"🏃 To run: cd {app_spec.output_dir}/{app_spec.app_name} && npm install && npm run dev")
+        return result
+    except Exception as e:
+        print(f"❌ Error during app generation: {e}")
+        return None
 
 
 if __name__ == "__main__":

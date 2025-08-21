@@ -4,91 +4,162 @@
 
 ## Executive Summary
 
-Design and implement an AI-powered React SPA generator using smolagents that can:
-1. Create apps from parameterized templates
-2. Iteratively edit and improve generated apps with minimal token consumption
-3. Provide feedback loops through linting, testing, and build processes
-4. Enable efficient multi-round development workflows
+Simple template-to-app generator using smolagents that:
+1. Copies template from `templates/` to `result/` directory
+2. Parameterizes template files with user specifications  
+3. Uses editing tools from `/plans/2025_08_21_smolagent_edit_tools.md` for modifications
 
-## 1. Template Parameterization Strategy
+**Focus**: Elegant simplicity - copy template, set parameters, use editing tools for customization.
 
-### Current Template Analysis
-The `templates/react-simple-spa` template is well-structured but needs strategic parameterization:
+## 1. App Specification Model
 
-**Files requiring parameterization:**
-- `package.json`: App name, version, description
-- `index.html`: Title, meta description
-- `src/App.tsx`: App content, initial state
-- `README.md` (if created): Project documentation
+### Pydantic Model Definition
+```python
+from pydantic import BaseModel
+from typing import Optional, List
 
-**Files that can remain static:**
-- All configuration files (tsconfig, eslint, vite, components.json)
-- Component library files (`src/components/ui/button.tsx`)
-- Utility files (`src/lib/utils.ts`)
-- CSS files (maintain consistent styling)
+class AppSpec(BaseModel):
+    """Specification for generating React app from template."""
+    
+    # Basic app information
+    app_name: str                    # "my-todo-app" (kebab-case, used for directory/package name)
+    display_name: str               # "My Todo App" (human-readable title)
+    description: str                # "A simple todo management application"
+    
+    # Optional metadata
+    author: Optional[str] = None    # "John Doe"
+    version: Optional[str] = "0.1.0"
+    
+    # Template selection
+    template_name: str = "react-simple-spa"  # Template to use from templates/ directory
+    
+    # Output configuration
+    output_dir: str = "result"      # Where to generate the app
+    
+    # Custom content (used by editing tools)
+    custom_content: Optional[str] = None     # Custom JSX content for App.tsx
+    features: List[str] = []                 # ["localStorage", "dark-mode"] - for future use
 
-### Template Variables
-
-```typescript
-interface TemplateConfig {
-  appName: string;           // "my-task-app"
-  displayName: string;       // "My Task Manager"
-  description: string;       // "A modern task management application"
-  features: string[];        // ["dark-mode", "local-storage", "responsive"]
-  author?: string;           // "User Name"
-  version?: string;          // "1.0.0"
-  initialComponents: ComponentSpec[];
-}
-
-interface ComponentSpec {
-  name: string;              // "TaskList"
-  type: "page" | "component" | "hook";
-  dependencies: string[];   // ["useState", "useEffect"]
-}
+    class Config:
+        # Example for documentation
+        schema_extra = {
+            "example": {
+                "app_name": "task-manager",
+                "display_name": "Task Manager",
+                "description": "A modern task management application with localStorage",
+                "author": "Developer",
+                "template_name": "react-simple-spa",
+                "output_dir": "result",
+                "custom_content": "<h1>Welcome to Task Manager</h1>",
+                "features": ["localStorage"]
+            }
+        }
 ```
 
-## 2. Enhanced Smolagent Tool Architecture
+### Template Files to Parameterize
+Only these files need variable replacement:
+- `package.json` → `app_name`, `description`, `author`, `version`
+- `index.html` → `display_name` (title tag)
+- `src/App.tsx` → `custom_content` (if provided)
+- Any `README.md` → `display_name`, `description`
 
-### Core Tools Design
+## 2. Simple Template Generator
 
-#### A. Template Processing Tools
-
-```python
-@tool
-def copy_template(template_name: str, target_dir: str, config: dict) -> str:
-    """Copy and parameterize a template to target directory."""
-    
-@tool  
-def parameterize_file(file_path: str, variables: dict) -> str:
-    """Replace template variables in a file using Jinja2."""
-    
-@tool
-def validate_template_config(config: dict) -> str:
-    """Validate template configuration parameters."""
-```
-
-#### B. Efficient File Editing Tools
+### Core Tool Definition
 
 ```python
+# template_generator.py
+
+import shutil
+import os
+from pathlib import Path
+from smolagents import tool
+
 @tool
-def edit_file_section(file_path: str, section_start: str, section_end: str, new_content: str) -> str:
-    """Edit specific section of file between markers. Token-efficient."""
+def generate_app_from_template(app_spec: AppSpec) -> str:
+    """
+    Generate complete React app by copying template and setting parameters.
     
-@tool
-def add_import_statement(file_path: str, import_spec: str) -> str:
-    """Add import without reading entire file."""
+    Args:
+        app_spec: AppSpec model with all configuration
     
-@tool
-def add_component_to_app(component_name: str, props: dict = None) -> str:
-    """Add React component to App.tsx intelligently."""
+    Returns:
+        Success message with generated app location
+    """
+    # 1. Copy template to output directory
+    template_path = Path("templates") / app_spec.template_name
+    output_path = Path(app_spec.output_dir) / app_spec.app_name
     
-@tool
-def create_react_component(name: str, component_type: str, features: list) -> str:
-    """Generate new React component with localStorage integration."""
+    if not template_path.exists():
+        return f"❌ Template not found: {template_path}"
     
-@tool
-def modify_package_json(action: str, package_name: str = None, script_name: str = None) -> str:
-    """Add dependencies or scripts without full file rewrite."""
+    if output_path.exists():
+        shutil.rmtree(output_path)  # Clean existing
+    
+    shutil.copytree(template_path, output_path)
+    
+    # 2. Parameterize key files
+    _parameterize_package_json(output_path, app_spec)
+    _parameterize_index_html(output_path, app_spec)
+    
+    if app_spec.custom_content:
+        _parameterize_app_tsx(output_path, app_spec)
+    
+    return f"✅ Generated app '{app_spec.app_name}' in {output_path}"
+
+# Helper functions (not tools)
+def _parameterize_package_json(output_path: Path, spec: AppSpec):
+    """Replace variables in package.json"""
+    package_json_path = output_path / "package.json"
+    with open(package_json_path, 'r') as f:
+        content = f.read()
+    
+    # Simple string replacement (could use json.loads/dumps for robustness)
+    content = content.replace('"react-simple-spa"', f'"{spec.app_name}"')
+    content = content.replace('"0.0.0"', f'"{spec.version}"')
+    
+    # Add description if not exists
+    if '"description":' not in content:
+        content = content.replace(
+            '"version":',
+            f'"description": "{spec.description}",\n  "version":'
+        )
+    
+    with open(package_json_path, 'w') as f:
+        f.write(content)
+
+def _parameterize_index_html(output_path: Path, spec: AppSpec):
+    """Replace title in index.html"""
+    html_path = output_path / "index.html"
+    with open(html_path, 'r') as f:
+        content = f.read()
+    
+    content = content.replace('<title>Vite + React + TS</title>', 
+                            f'<title>{spec.display_name}</title>')
+    
+    with open(html_path, 'w') as f:
+        f.write(content)
+
+def _parameterize_app_tsx(output_path: Path, spec: AppSpec):
+    """Replace content in App.tsx if custom_content provided"""
+    app_tsx_path = output_path / "src" / "App.tsx"
+    with open(app_tsx_path, 'r') as f:
+        content = f.read()
+    
+    # Replace the content inside the div
+    old_content = '''<div className="flex min-h-svh flex-col items-center justify-center">
+      <h1 className="text-4xl font-bold">Hello World</h1>
+      <Button>Click me</Button>
+    </div>'''
+    
+    new_content = f'''<div className="flex min-h-svh flex-col items-center justify-center">
+      {spec.custom_content}
+    </div>'''
+    
+    content = content.replace(old_content, new_content)
+    
+    with open(app_tsx_path, 'w') as f:
+        f.write(content)
 ```
 
 #### C. Development Feedback Tools
@@ -135,268 +206,298 @@ def add_localStorage_integration(component_path: str, state_variables: list) -> 
     """Add localStorage persistence to component state."""
 ```
 
-## 3. Token-Efficient Editing Strategy
+## 3. Usage Examples
 
-### Problem: Large File Context Consumption
-- Reading entire files for small edits wastes tokens
-- Multiple edit rounds compound the problem
-- Need targeted, surgical editing approaches
-
-### Solution: Surgical File Editing
-
-#### A. Section-Based Editing
+### Basic App Generation
 ```python
-# Instead of reading entire file:
-content = read_file("src/App.tsx")  # 50+ lines
-edit_file(content.replace(...))    # Rewrite entire file
-
-# Use targeted section editing:
-edit_file_section(
-    file_path="src/App.tsx",
-    section_start="// STATE SECTION",
-    section_end="// END STATE",
-    new_content="const [tasks, setTasks] = useState([]);"
+# Create simple app spec
+app_spec = AppSpec(
+    app_name="todo-app",
+    display_name="Todo App", 
+    description="A simple todo management application",
+    author="Developer"
 )
+
+# Generate the app
+result = generate_app_from_template(app_spec)
+print(result)
+# Output: ✅ Generated app 'todo-app' in result/todo-app
 ```
 
-#### B. AST-Based Editing (Advanced)
+### With Custom Content
 ```python
-@tool
-def add_react_hook(file_path: str, hook_type: str, hook_config: dict) -> str:
-    """Add React hook using AST parsing - no full file read."""
-    
-@tool
-def modify_jsx_element(file_path: str, element_selector: str, modifications: dict) -> str:
-    """Modify specific JSX element properties."""
+# App with custom JSX content
+app_spec = AppSpec(
+    app_name="task-manager",
+    display_name="Task Manager",
+    description="Advanced task management with categories", 
+    custom_content='''
+      <h1 className="text-4xl font-bold">Task Manager</h1>
+      <p className="text-gray-600">Organize your tasks efficiently</p>
+      <Button>Get Started</Button>
+    '''
+)
+
+result = generate_app_from_template(app_spec)
 ```
 
-#### C. Template-Based Code Generation
+### Natural Language Parsing (Agent Handles This)
 ```python
-@tool
-def generate_crud_component(entity_name: str, fields: list) -> str:
-    """Generate complete CRUD component from template."""
-    
-@tool
-def add_form_component(form_spec: dict) -> str:
-    """Generate form component with validation."""
+# No composite tool - agent parses requirements into AppSpec internally
+# Agent workflow would be:
+
+user_request = "Create a todo app called TaskMaster"
+
+# Agent internally:
+# 1. Parses "TaskMaster" as app name
+# 2. Infers "Task Master" as display name  
+# 3. Creates AppSpec with parsed values
+# 4. Calls generate_app_from_template(app_spec)
+# 5. Uses additional editing tools if needed
+
+# This keeps the agent flexible and avoids rigid parsing logic
 ```
 
-## 4. Feedback Loop Implementation
+## 4. Integration with Editing Tools
 
-### Quality Gates Architecture
+### Post-Generation Customization
+After generating the base app, use editing tools for further customization:
 
 ```python
-class QualityGate:
-    def __init__(self, name: str, command: str, success_patterns: list):
-        self.name = name
-        self.command = command
-        self.success_patterns = success_patterns
-    
-    def run(self) -> QualityResult:
-        # Execute and analyze results
-        pass
+# 1. Generate base app
+app_spec = AppSpec(
+    app_name="todo-app",
+    display_name="Todo App",
+    description="A todo management application"
+)
+generate_app_from_template(app_spec)
 
-quality_gates = [
-    QualityGate("lint", "pnpm lint", ["0 errors", "No issues found"]),
-    QualityGate("typecheck", "pnpm build", ["Build completed", "no errors"]),
-    QualityGate("build", "pnpm build", ["Build completed successfully"]),
-    QualityGate("test", "pnpm test", ["All tests passed"])
-]
+# 2. Use editing tools for customization
+from editing_tools import add_import_statement, replace_exact_text
+
+# Add useState import
+add_import_statement("result/todo-app/src/App.tsx", "import { useState } from 'react'")
+
+# Add state to App component  
+old_text = """function App() {
+  return ("""
+
+new_text = """function App() {
+  const [todos, setTodos] = useState([]);
+  return ("""
+
+replace_exact_text("result/todo-app/src/App.tsx", old_text, new_text)
+
+# 3. Validate changes
+from quality_tools import check_typescript_syntax, build_react_app
+
+check_typescript_syntax("result/todo-app/src/App.tsx")
+build_react_app("result/todo-app")
 ```
 
-### Incremental Development Workflow
-
+### Agent Workflow Pattern
 ```python
-@tool
-def iterative_development_cycle(changes: list, max_iterations: int = 3) -> str:
-    """
-    Execute development cycle with feedback:
-    1. Apply changes
-    2. Run quality gates
-    3. If failures, analyze and retry
-    4. Return final status
-    """
-    for iteration in range(max_iterations):
-        # Apply changes
-        apply_changes(changes)
-        
-        # Run quality gates
-        results = run_quality_gates()
-        
-        if all(result.success for result in results):
-            return "✅ All quality gates passed"
-            
-        # Analyze failures and suggest fixes
-        fixes = analyze_failures(results)
-        changes = fixes
-    
-    return "❌ Could not resolve all issues"
+# Agent decides each step independently - no composite tools
+
+# 1. Agent generates base app
+app_spec = AppSpec(app_name="todo-app", display_name="Todo App")
+result = generate_app_from_template(app_spec)
+
+# 2. Agent chooses to add imports (atomic operation)
+add_import_statement("result/todo-app/src/App.tsx", "import { useState } from 'react'")
+
+# 3. Agent chooses to modify content (atomic operation)  
+old_text = """function App() {
+  return ("""
+new_text = """function App() {
+  const [todos, setTodos] = useState([]);
+  return ("""
+replace_exact_text("result/todo-app/src/App.tsx", old_text, new_text)
+
+# 4. Agent chooses to validate (atomic operation)
+check_typescript_syntax("result/todo-app/src/App.tsx")
+
+# 5. Agent chooses to build (atomic operation)
+build_react_app("result/todo-app")
 ```
 
-## 5. Multi-Agent Architecture
+## 5. Agent Setup
 
-### Agent Specialization
+### Simple Agent Configuration
 
-#### A. Template Generator Agent
 ```python
+# agent_setup.py
+
+from smolagents import CodeAgent, OpenAIServerModel
+from template_generator import generate_app_from_template
+from editing_tools import replace_exact_text, add_import_statement, read_file_section
+from quality_tools import check_typescript_syntax, build_react_app
+from am_tools import read_file, write_file, list_files, mkdir
+
 template_agent = CodeAgent(
-    tools=[copy_template, parameterize_file, validate_template_config],
+    tools=[
+        # Template generation (atomic)
+        generate_app_from_template,
+        
+        # File editing (atomic operations from editing tools plan)
+        replace_exact_text,
+        add_import_statement, 
+        read_file_section,
+        
+        # Quality checks (atomic operations)
+        check_typescript_syntax,
+        build_react_app,
+        
+        # File system operations (atomic)
+        read_file,
+        write_file,
+        list_files,
+        mkdir
+    ],
     model=OpenAIServerModel("gpt-5"),
-    system_prompt="You specialize in creating apps from templates..."
+    additional_authorized_imports=["shutil", "pathlib", "subprocess"],
+    system_prompt="""You are a React app generator. You create React SPAs using atomic operations:
+    1. Parse user requirements into AppSpec model
+    2. Call generate_app_from_template() to create base app
+    3. Use individual editing tools as needed for customization
+    4. Use individual validation tools to check quality
+    
+    Make independent decisions about when to use each tool. Keep it simple and focused on working applications."""
 )
 ```
 
-#### B. Feature Development Agent  
+### Usage Pattern
 ```python
-feature_agent = CodeAgent(
-    tools=[create_react_component, add_component_to_app, add_localStorage_integration],
-    model=OpenAIServerModel("gpt-5"),
-    system_prompt="You add features to existing React applications..."
-)
-```
+# Agent workflow
+user_request = "Create a todo app called TaskMaster with a clean interface"
 
-#### C. Quality Assurance Agent
-```python
-qa_agent = CodeAgent(
-    tools=[run_linter, run_type_check, build_app, run_tests],
-    model=OpenAIServerModel("gpt-5"),
-    system_prompt="You ensure code quality and fix issues..."
-)
-```
+# Agent would:
+# 1. Parse request into AppSpec
+# 2. Call generate_app_from_template(spec)
+# 3. Use editing tools for any customization
+# 4. Validate with quality tools
+# 5. Return success/failure message
 
-### Agent Coordination
-
-```python
-@tool
-def coordinate_development(task: str, app_config: dict) -> str:
-    """
-    Coordinate multiple agents for complex development tasks:
-    1. Template Agent: Create initial app
-    2. Feature Agent: Add requested features  
-    3. QA Agent: Ensure quality
-    4. Return final status
-    """
-    # Initial generation
-    result = template_agent.run(f"Create app: {task}", additional_args=app_config)
-    
-    # Feature development
-    if app_config.get("features"):
-        result = feature_agent.run(f"Add features: {app_config['features']}")
-    
-    # Quality assurance
-    qa_result = qa_agent.run("Ensure all quality gates pass")
-    
-    return f"App development complete: {qa_result}"
+result = template_agent.run(user_request)
 ```
 
 ## 6. Implementation Phases
 
-### Phase 1: Foundation (Week 1)
-- ✅ Implement basic template parameterization
-- ✅ Create core file editing tools  
-- ✅ Set up quality gate infrastructure
-- ✅ Basic CodeAgent with template tools
+### Phase 1: Core Template Generator (Week 1)
+- ✅ Define AppSpec Pydantic model
+- ✅ Implement `generate_app_from_template()` tool
+- ✅ Basic template copying with shutil
+- ✅ Simple parameterization for package.json, index.html
+- ✅ Integration with existing am_tools.py
 
-### Phase 2: Enhanced Editing (Week 2)
-- ⚠️ Implement section-based editing tools
-- ⚠️ Add React-specific component tools
-- ⚠️ Create localStorage integration tools
-- ⚠️ Build feedback loop system
+### Phase 2: Enhanced Parameterization (Week 2)  
+- ⚠️ Robust file parameterization (App.tsx custom content)
+- ⚠️ Integration with editing tools from other plan
+- ⚠️ Agent workflow with atomic tool decisions
+- ⚠️ Error handling and validation
+- ⚠️ Agent setup and testing
 
-### Phase 3: Multi-Agent System (Week 3)
-- ⚠️ Implement specialized agents
-- ⚠️ Create agent coordination system
-- ⚠️ Add advanced development tools
-- ⚠️ Testing and refinement
+### Phase 3: Quality & Validation (Week 3)
+- ⚠️ Integration with TypeScript/ESLint checking tools
+- ⚠️ Build validation after generation
+- ⚠️ Natural language to AppSpec parsing
+- ⚠️ Comprehensive error messages
+- ⚠️ Template validation and testing
 
-### Phase 4: Optimization (Week 4)
-- ⚠️ Token usage optimization
-- ⚠️ Performance improvements  
-- ⚠️ Advanced AST-based editing
-- ⚠️ Bundle analysis and optimization
+### Phase 4: Polish & Documentation (Week 4)
+- ⚠️ Agent workflow examples and documentation
+- ⚠️ Template expansion capabilities
+- ⚠️ Performance optimization
+- ⚠️ Integration testing with full workflow
 
-## 7. Technical Considerations
+## 7. File Structure
 
-### Error Handling Strategy
-```python
-class DevelopmentError(Exception):
-    def __init__(self, stage: str, details: str, suggested_fix: str):
-        self.stage = stage
-        self.details = details  
-        self.suggested_fix = suggested_fix
-
-@tool
-def handle_development_error(error: DevelopmentError) -> str:
-    """Intelligent error handling with suggested fixes."""
-    return f"Error in {error.stage}: {error.details}\nSuggested fix: {error.suggested_fix}"
+### Project Layout
+```
+VibeCoder/
+├── templates/
+│   └── react-simple-spa/          # Source template
+│       ├── package.json           # Parameterized: name, description, version
+│       ├── index.html            # Parameterized: title
+│       ├── src/App.tsx           # Parameterized: custom_content (optional)
+│       └── ...                   # All other files copied as-is
+├── result/
+│   └── {app_name}/               # Generated apps appear here
+│       ├── package.json          # After parameterization
+│       ├── index.html           # After parameterization
+│       ├── src/App.tsx          # After parameterization
+│       └── ...                  # Copied template files
+├── template_generator.py         # Core implementation
+├── am_tools.py                   # Existing file system tools
+└── generate_app.py              # Updated to use new approach
 ```
 
-### State Management
-```python
-class AppState:
-    def __init__(self, app_dir: str):
-        self.app_dir = app_dir
-        self.config = load_config()
-        self.current_features = []
-        self.quality_status = {}
-    
-    def save_checkpoint(self):
-        """Save current state for rollback."""
-        
-    def rollback_to_checkpoint(self):
-        """Rollback to last known good state."""
+### Template Variables
+Templates use simple string replacement (no Jinja2 complexity):
+
+**package.json**:
+```json
+{
+  "name": "{{APP_NAME}}",
+  "description": "{{DESCRIPTION}}",
+  "version": "{{VERSION}}",
+  "author": "{{AUTHOR}}"
+}
 ```
 
-### Performance Monitoring
-```python
-@tool  
-def track_token_usage(operation: str) -> str:
-    """Monitor token consumption per operation."""
-    
-@tool
-def optimize_workflow(workflow_history: list) -> str:
-    """Suggest workflow optimizations based on usage patterns."""
+**index.html**:
+```html
+<title>{{DISPLAY_NAME}}</title>
+```
+
+**App.tsx** (only if custom_content provided):
+```tsx
+// Replace default content div with custom content
 ```
 
 ## 8. Success Metrics
 
-### Functionality Metrics
-- ✅ Template generation success rate: >95%
-- ⚠️ Quality gate pass rate: >90%  
-- ⚠️ Feature addition success rate: >85%
-- ⚠️ Build success rate: >98%
+### Core Metrics
+- **Template Copy Success**: 100% (simple file copying)
+- **Parameterization Success**: >95% (string replacement)
+- **Build Success**: 100% (generated apps must build)
+- **TypeScript Validation**: 100% (no type errors)
 
-### Efficiency Metrics
-- ⚠️ Average tokens per edit operation: <500
-- ⚠️ Development cycle time: <5 minutes
-- ⚠️ Error resolution time: <2 iterations
-- ⚠️ Template parameterization time: <30 seconds
+### Performance
+- **Generation Time**: <10 seconds (copy + parameterize)
+- **File Size**: Identical to template (no bloat)
+- **Memory Usage**: Minimal (no complex processing)
 
-### Quality Metrics
-- ⚠️ Generated code passes linting: 100%
-- ⚠️ TypeScript compilation success: 100%
-- ⚠️ Generated apps are runnable: 100%
-- ⚠️ localStorage integration works: 100%
+### Quality
+- **Runnable Apps**: 100% (must start with `pnpm dev`)
+- **Clean Code**: Generated code matches template quality
+- **No Errors**: All generated apps pass lint and build
 
 ## 9. Future Enhancements
 
-### Advanced Features
-- 🔮 Visual component builder integration
-- 🔮 AI-powered UX/UI suggestions
-- 🔮 Automated testing generation
-- 🔮 Performance optimization recommendations
+### Additional Templates
+- 🔮 `react-dashboard` - Admin dashboard template
+- 🔮 `react-blog` - Blog/content template  
+- 🔮 `react-ecommerce` - Shopping cart template
+- 🔮 Template auto-selection based on requirements
 
-### Template Ecosystem
-- 🔮 Multiple template types (dashboard, blog, e-commerce)
-- 🔮 Template marketplace/sharing
-- 🔮 Community-contributed components
-- 🔮 Template versioning system
+### Enhanced Parameterization  
+- 🔮 Component-level customization
+- 🔮 Theme/styling options in AppSpec
+- 🔮 Package dependency selection
+- 🔮 Environment configuration generation
 
-### AI Capabilities
-- 🔮 Natural language to component generation
-- 🔮 Automatic bug detection and fixing
-- 🔮 Performance bottleneck identification
-- 🔮 Accessibility compliance checking
+### Workflow Improvements
+- 🔮 Better natural language parsing to AppSpec
+- 🔮 Template validation and testing
+- 🔮 Generated app preview/screenshot
+- 🔮 Automatic dependency updates
+
+---
+
+**Key Principle**: Keep template generation simple - copy files and replace variables. Use editing tools from the other plan for complex modifications.
+
+**Integration**: This plan focuses purely on template→app generation. The `/plans/2025_08_21_smolagent_edit_tools.md` plan handles all post-generation editing and customization.
 
 ---
 
