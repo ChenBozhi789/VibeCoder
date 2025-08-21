@@ -54,8 +54,17 @@ Display Name: {app_spec.display_name}
 Description: {app_spec.description}
 Template: {app_spec.template_name}
 Output Directory: {app_spec.output_dir}
+Custom Content: {app_spec.custom_content}
 
-Use the generate_app_from_template tool with the AppSpec to create the base application.
+Use the generate_app_from_template tool with these parameters to create the base application:
+- app_name: "{app_spec.app_name}"
+- display_name: "{app_spec.display_name}"
+- description: "{app_spec.description}"
+- author: "{app_spec.author}"
+- template_name: "{app_spec.template_name}"
+- output_dir: "{app_spec.output_dir}"
+- custom_content: "{app_spec.custom_content}"
+
 After generation, you may enhance the application with additional features as needed.
 
 The generated app should be a complete, working React application that can be run with:
