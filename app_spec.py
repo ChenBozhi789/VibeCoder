@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, List
 
-
 class AppSpec(BaseModel):
     """Specification for generating React app from template."""
     

@@ -243,9 +243,9 @@ result = generate_app_from_template(
 ## For Next Developer
 
 ### Quick Start
-1. Review this PROGRESS.md
-2. Read the plans in `plans/` directory
-3. Test current functionality: `uv run generate_app.py --verbose`
+1. Review this PROGRESS.md (DOING)
+2. Read the plans in `plans/` directory (DOING)
+3. Test current functionality: `uv run generate_app.py --verbose` (DONE)
 4. Focus on implementing editing tools from Plan 2
 
 ### Key Files to Understand
