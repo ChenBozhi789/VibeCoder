@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import Optional
 from smolagents import tool
+import subprocess
 
 @tool
 # Reads and returns the content of a file in the current directory or subdirectories.
@@ -170,6 +171,16 @@ def mkdir(directory: str, parents: Optional[bool] = True, exist_ok: Optional[boo
             raise FileNotFoundError(f"Parent directory doesn't exist. Set parents=True to create parent directories: {directory}")
         raise
 
+# @tool
+# def run_npm(command: str) -> str:
+#     """
+#     Run an npm command and return both stdout and stderr.
+#     Args:
+#       command: The npm command to run, e.g., 'npm install express'
+#     """
+#     result = subprocess.run(command, shell=True, text=True, capture_output=True)
+#     return f"STDOUT:\n{result.stdout}\n\nSTDERR:\n{result.stderr}"
+
 
 # Example usage with smolagents
 if __name__ == "__main__":
@@ -178,7 +189,7 @@ if __name__ == "__main__":
     # Create an agent with the file tools
     model = InferenceClientModel()
     agent = CodeAgent(
-        tools=[read_file, write_file, list_files, mkdir],
+        tools=[read_file, write_file, list_files, mkdir, run_npm],
         model=model
     )
 

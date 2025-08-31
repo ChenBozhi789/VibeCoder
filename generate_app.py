@@ -1,13 +1,16 @@
+import argparse
 import os
 import sys
 import time
 import threading
 from dotenv import load_dotenv
-from am_tools import read_file, write_file, mkdir, list_files
+from pathlib import Path
 from smolagents import CodeAgent, WebSearchTool
 from smolagents.models import OpenAIServerModel
 from template_generator import generate_app_from_template
 from app_spec import AppSpec
+from am_tools import read_file, write_file, mkdir, list_files # , run_npm
+from generate_prompt import scan_app, pick_tasks, render_prompt, ensure_parent_written
 
 # Load environment variables from .env file
 load_dotenv()
@@ -48,6 +51,9 @@ class ProgressIndicator:
             i += 1
 
 
+# (Option 2) No inline fallback; prompt is always (re)generated after app creation.
+
+
 def main(verbose: bool = False):
     """
     Generate React app using template-based approach with smolagents.
@@ -55,14 +61,13 @@ def main(verbose: bool = False):
     Args:
         verbose: If True, show detailed progress and agent steps
     """
-    
     # Create app specification
     app_spec = AppSpec(
-        app_name="tester-app",  # task-manager-app
+        app_name="tester-app-5-gpt-5",  # task-manager-app
         display_name="Task Manager",
         description="A modern React task management application with localStorage persistence",
         author="VibeCoder",
-        template_name="react-dashboard-spa",
+        template_name="react-simple-spa",
         output_dir="result",
         custom_content='''<h1 className="text-4xl font-bold">Task Manager</h1>
       <p className="text-lg text-gray-600 mb-8">Organize your tasks efficiently</p>
@@ -95,61 +100,42 @@ def main(verbose: bool = False):
             read_file, 
             write_file, 
             list_files, 
-            mkdir
+            mkdir #,
+            # run_npm
         ],
         model=OpenAIServerModel("gpt-5"),
+        max_steps=1,
         stream_outputs=False,  # Unenable streaming for real-time feedback
-        additional_authorized_imports=["subprocess", "shutil", "json", "re"],
+        additional_authorized_imports=["subprocess", "shutil", "json", "re"],        
     )
 
-    # Step 3: Create enhancement prompt (optional)
+    # Step 3: Create enhancement prompt AFTER app creation (always rebuild)
     app_path = f"{app_spec.output_dir}/{app_spec.app_name}"
+    app_dir = Path(app_path).resolve()
+    try:
+        # Use the same rules as generate_prompt.py
+        ctx = scan_app(app_dir)  # project snapshot
+        tasks = pick_tasks(ctx, goal="add dark mode and a README", profile="baseline", allow_new_deps=False)
+        prompt_text = render_prompt(ctx, tasks, change_budget=8, allow_new_deps=False)
+        prompt_path = app_dir / "prompts" / "enhancement_prompt.j2"
+        ensure_parent_written(prompt_path, prompt_text)
+        print(f"📝 Enhancement prompt rebuilt at: {prompt_path}")
+    except Exception as e:
+        print(f"⚠️ Failed to build enhancement prompt: {e}")
+        return None
     
     # Step 4: Use agent to enhance the app
     print("🧠 Enhancing the app with AI...")
-    spinner = ProgressIndicator("AI enhancing")
-    spinner.start()
     cwd_before = os.getcwd()
     try:
         # Work inside the generated app so file tools hit correct paths
         os.chdir(app_path)
-
-        enhancement_prompt = f"""
-        You are a senior React engineer. Improve this Vite + React + TS + Tailwind + shadcn project in the current working directory.
-
-        Rules:
-        - Only use the provided tools: read_file, write_file, list_files, mkdir.
-        - Do not run shell commands; instead, create/modify files directly.
-        - Keep TypeScript strict, idiomatic, and readable.
-
-        Project context:
-        - App path: {app_path}
-        - App name: {app_spec.display_name}
-        - Description: {app_spec.description}
-
-        Tasks:
-        1) Quality setup:
-        - Add ESLint + Prettier configs and recommended rules for React + TS.
-        - Update package.json scripts: "lint", "format", "typecheck", "test".
-        2) App polish:
-        - Replace the default App.tsx hero with a clean landing (title, subtitle, primary Button).
-        - Add a simple feature toggle (dark-mode switch) wired to localStorage ("theme").
-        3) DX:
-        - Create a README.md with run/build/test instructions.
-        - Add a minimal Vitest setup with one sample test (e.g., a utility function).
-
-        Deliverables:
-        - List changed/created files at the end.
-        - Keep diffs minimal and safe; do not introduce unused dependencies.
-        """
-
         # Run the agent: it will call read_file/write_file/etc. to edit the project
-        agent.run(enhancement_prompt)
+        agent.run(prompt_text)
 
     except Exception as e:
         print(f"\n⚠️ AI enhancement encountered an issue: {e}")
     finally:
-        spinner.stop()
         os.chdir(cwd_before)
 
     # # For now, just complete without agent enhancement
@@ -191,7 +177,6 @@ def main(verbose: bool = False):
         print()
         print("📁 Generated files:")
         try:
-            from pathlib import Path
             app_path = Path(app_spec.output_dir) / app_spec.app_name
             for file in sorted(app_path.rglob("*")):
                 if file.is_file() and not any(part.startswith('.') or part == 'node_modules' for part in file.parts):
@@ -199,13 +184,8 @@ def main(verbose: bool = False):
                     print(f"   • {relative_path}")
         except Exception:
             print("   (Could not list files)")
-    
-    return template_result
-
 
 if __name__ == "__main__":
     # Check for verbose flag
     verbose_mode = "--verbose" in sys.argv or "-v" in sys.argv
     main(verbose=verbose_mode)
-
-    
