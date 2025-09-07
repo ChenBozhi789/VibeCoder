@@ -1,0 +1,16 @@
+{
+  "app_name": "china-todo",
+  "display_name": "ChinaTodo",
+  "description": "A minimal, local-first desktop to-do app for creating, editing, and deleting single-line tasks. Persisted locally (IndexedDB), offline-capable, and keyboard-accessible.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "react-simple-spa",
+  "output_dir": "result",
+  "custom_content": "<header><h1>ChinaTodo</h1><p>Minimal local to-do list — add, edit, delete tasks.</p></header>",
+  "features": [
+    "IndexedDB",
+    "offline",
+    "accessibility",
+    "pwa-ready"
+  ]
+}

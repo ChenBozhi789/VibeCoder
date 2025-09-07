@@ -3,6 +3,8 @@ from pathlib import Path
 from typing import Optional
 from smolagents import tool
 import subprocess
+from app_spec import AppSpec
+from openai import OpenAI
 
 @tool
 # Reads and returns the content of a file in the current directory or subdirectories.
@@ -42,7 +44,6 @@ def read_file(filepath: str) -> str:
 
 
 @tool
-# 将内容写入文件，可以选择覆盖写入或追加
 # Writes or appends content to a file in the current directory or subdirectories.
 def write_file(filepath: str, content: str, mode: Optional[str] = 'w') -> str:
     """
@@ -171,16 +172,120 @@ def mkdir(directory: str, parents: Optional[bool] = True, exist_ok: Optional[boo
             raise FileNotFoundError(f"Parent directory doesn't exist. Set parents=True to create parent directories: {directory}")
         raise
 
+@tool
+# Generate AppSpec from user requirements and plan
+def build_app_spec_from_docs(user_req_path: str, plan_path: str, out_path: str) -> AppSpec:
+    """
+    Build an AppSpec JSON from two markdown files.
+
+    Args:
+        user_req_path: Path (string) to user_requirements.md
+        plan_path: Path (string) to plan.md
+        out_path: Path (string) to write spec/app_spec.json
+
+    Returns:
+        A message containing the absolute path to the written JSON file.
+    """
+    client = OpenAI()  # 用环境变量 OPENAI_API_KEY
+    user_req = Path(user_req_path).read_text(encoding="utf-8")
+    plan_md  = Path(plan_path).read_text(encoding="utf-8")
+
+    system = (
+        "You convert the given user requirements + plan into a valid AppSpec JSON. "
+        "Be strict with types. If a field is missing, infer safe defaults."
+    )
+    user = f"""
+        [USER_REQUIREMENTS_MD]
+        {user_req}
+
+        [PLAN_MD]
+        {plan_md}
+
+        [OUTPUT_SCHEMA]
+        - Produce an AppSpec with fields:
+        app_name (kebab-case),
+        display_name,
+        description,
+        author (optional),
+        version (optional),
+        template_name (default: "react-simple-spa"),
+        output_dir (default: "result"),
+        custom_content (optional JSX),
+        features (string array).
+        """
+
+    resp = client.responses.parse(
+        model="gpt-5-mini",
+        input=[{"role": "system", "content": system},
+               {"role": "user", "content": user}],
+        text_format=AppSpec
+    )
+
+    spec: AppSpec = resp.output_parsed  # 已是强类型对象
+    
+    out_file = Path(out_path)
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    out_file.write_text(spec.model_dump_json(indent=2), encoding="utf-8")
+    return f"Successfully built AppSpec: {out_file}"
+
+
+@tool
+def get_user_feedback(question_for_user: str) -> str:
+    """
+    Get user feedback on the app.
+
+    Args:
+        question_for_user: The question to ask the user
+
+    Returns:
+        The user's feedback as a string
+    """
+    print(question_for_user)
+    response = input("Enter your response: ")
+    return response
+
+
 # @tool
 # def run_npm(command: str) -> str:
 #     """
-#     Run an npm command and return both stdout and stderr.
-#     Args:
-#       command: The npm command to run, e.g., 'npm install express'
+#     Run an npm command in the current project directory.
+#     Captures stdout/stderr and returns them to the agent for debugging.
 #     """
-#     result = subprocess.run(command, shell=True, text=True, capture_output=True)
-#     return f"STDOUT:\n{result.stdout}\n\nSTDERR:\n{result.stderr}"
+#     try:
+#         result = subprocess.run(
+#             command,
+#             shell=True,
+#             capture_output=True,
+#             text=True,
+#             check=False
+#         )
+#         output = f"Exit Code: {result.returncode}\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
+#         return output
+#     except Exception as e:
+#         return f"Error running npm command: {str(e)}"
 
+
+@tool
+def run_npm_in(path: str, command: str, timeout: int = 600) -> str:
+    """
+    在指定目录运行 npm 命令（一次性命令）。返回退出码/输出/错误。
+    适合：npm ci / npm install / npm run build / npm run test / npm run lint / npm run preview
+    """
+    allowed = {
+        "npm ci", "npm install",
+        "npm run build", "npm run test", "npm run lint", "npm run preview", "npm -v"
+    }
+    if command not in allowed:
+        return f"Command not allowed: {command}"
+
+    try:
+        p = subprocess.run(
+            command, shell=True, cwd=path,
+            capture_output=True, text=True, timeout=timeout, check=False
+        )
+        return f"Exit:{p.returncode}\nSTDOUT:\n{p.stdout}\nSTDERR:\n{p.stderr}"
+    except subprocess.TimeoutExpired as e:
+        return f"Timeout after {timeout}s.\nSTDOUT:\n{e.stdout}\nSTDERR:\n{e.stderr}"
 
 # Example usage with smolagents
 if __name__ == "__main__":
@@ -189,16 +294,8 @@ if __name__ == "__main__":
     # Create an agent with the file tools
     model = InferenceClientModel()
     agent = CodeAgent(
-        tools=[read_file, write_file, list_files, mkdir, run_npm],
+        tools=[read_file, write_file, list_files, mkdir, build_app_spec_from_docs],
         model=model
     )
-
-    # Example tasks the agent can perform:
-    # agent.run("Create a directory called 'data'")
-    # agent.run("Create nested directories 'output/reports/2024'")
-    # agent.run("Create a file called 'test.txt' with the content 'Hello, World!'")
-    # agent.run("Read the content of 'test.txt'")
-    # agent.run("List all Python files in the current directory")
-    # agent.run("Create a folder called 'output' and write a file 'output/results.txt' with some data")
 
     print("FileTool is ready to use with smolagents!")

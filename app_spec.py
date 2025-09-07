@@ -25,12 +25,13 @@ class AppSpec(BaseModel):
 
     class Config:
         # Example for documentation
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "app_name": "task-manager",
                 "display_name": "Task Manager",
                 "description": "A modern task management application with localStorage",
                 "author": "Developer",
+                "version": "0.1.0",
                 "template_name": "react-simple-spa",
                 "output_dir": "result",
                 "custom_content": "<h1>Welcome to Task Manager</h1>",
@@ -45,7 +46,8 @@ if __name__ == "__main__":
         app_name="todo-app",
         display_name="Todo App", 
         description="A simple todo management application",
-        author="Developer"
+        author="Developer",
+        version="0.1.0"
     )
     
     print("AppSpec created successfully:")

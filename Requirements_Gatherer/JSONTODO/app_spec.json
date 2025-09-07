@@ -1,0 +1,59 @@
+{
+  "name": "JSONTODO",
+  "version": "0.1.0",
+  "description": "A local-first single-page to-do app that runs entirely in the browser and stores data locally. MVP supports add/edit/delete tasks and export/import as JSON.",
+  "author": "(user)",
+  "features": {
+    "add_edit_delete": true,
+    "export_import": true,
+    "offline_cache_pwa": false,
+    "search_filters": false,
+    "tags_projects": false
+  },
+  "data_model": {
+    "task": {
+      "id": "string",
+      "title": "string (required, max 200)",
+      "completed": "boolean",
+      "created_at": "string (ISO 8601)",
+      "updated_at": "string (ISO 8601)"
+    }
+  },
+  "storage": {
+    "type": "indexeddb",
+    "db_name": "json_todo_db",
+    "store_name": "tasks",
+    "export_format": "json"
+  },
+  "ui": {
+    "layout": "single-page",
+    "entry_area": "top input + add button",
+    "list": "reverse-chronological, inline edit, checkbox, delete",
+    "responsive": "desktop-first, stacks on narrow screens",
+    "accessibility": "keyboard operable, semantic HTML"
+  },
+  "implementation": {
+    "language": "JavaScript",
+    "framework": "vanilla or Preact (recommended)",
+    "build_tool": "vite (recommended)",
+    "service_worker": true,
+    "bundle_target": "modern browsers"
+  },
+  "files": [
+    "public/ (icons, manifest)",
+    "src/index.html",
+    "src/main.js",
+    "src/ui/taskList.js",
+    "src/ui/taskEditor.js",
+    "src/store/index.js",
+    "src/styles/*.css",
+    "src/sw.js"
+  ],
+  "project_path": "C:\\Users\\cbz\\Desktop\\VibeCoder\\VibeCoder\\Requirements_Gatherer\\JSONTODO",
+  "mvp_success_criteria": [
+    "Core add/edit/delete works and persists locally",
+    "Export/import JSON works",
+    "App loads and performs core actions offline after initial visit",
+    "Basic accessibility and responsive layout verified"
+  ]
+}
