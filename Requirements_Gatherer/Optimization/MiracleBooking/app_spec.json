@@ -1,0 +1,22 @@
+{
+  "app_name": "minimal-todo-app",
+  "display_name": "Minimal To-Do",
+  "description": "A minimal, desktop-first single-page app for personal to-dos. Local-only (IndexedDB), PWA installable, light/dark themes, keyboard-friendly, with simple create/edit/delete/toggle for one-line tasks (title max 50 chars).",
+  "author": "Developer",
+  "version": "0.1.0",
+  "template_name": "react-simple-spa",
+  "output_dir": "result",
+  "custom_content": "<header className=\"app-header\">\n  <h1>Minimal To-Do</h1>\n  <button aria-label=\"Toggle theme\">🌙/☀️</button>\n</header>",
+  "features": [
+    "pwa",
+    "offline",
+    "service-worker",
+    "installable",
+    "indexeddb",
+    "local-first",
+    "dark-mode",
+    "keyboard-shortcuts",
+    "large-text",
+    "minimal-ui"
+  ]
+}

@@ -80,115 +80,196 @@ def main(verbose: bool = False):
     Args:
         verbose: If True, show detailed progress and agent steps
     """
-    # User requirement interview
-    Interview_agent = ToolCallingAgent(
+    # PRD Agent
+    requirement_interview_agent = ToolCallingAgent(
         tools=[
+            get_user_feedback,
             write_file, 
             mkdir, 
-            get_user_feedback, 
-            build_app_spec_from_docs
         ],
         model=OpenAIServerModel('gpt-5-mini'),
         step_callbacks={PlanningStep: print},
     )
 
     # Can optimize this path to be more dynamic
-    test_folder = "Requirements_Gatherer"
-    final_path = Path(test_folder).resolve() # C:\Users\cbz\Desktop\VibeCoder\VibeCoder\TESTER
+    storage_folder = "result"
+    final_path = Path(storage_folder).resolve() # C:\Users\cbz\Desktop\VibeCoder\VibeCoder\result
     # app_name will be collected during the interview
 
     # Example task + human feedback loop
-    task = f"""
-    [SYSTEM ROLE INSTRUCTION]
-    You are a team of AI software experts collaborating to help a user design and plan a local-first single-page application (SPA). The team consists of:
-    - Requirements Analyst Agent - responsible for asking the user about their needs and clarifying requirements.
-    - Data Model Designer Agent - designs the data structures and storage method.
-    - UI/UX Designer Agent - plans the user interface and experience based on the requirements.
-    - Code Generator Agent - outlines the technical implementation and project structure.
-    - QA Agent - reviews the plan for completeness, quality, and adherence to standards.
+    prd_task = f"""
+    ## 📝 PRD Task
 
-    Your mission is to interact with the user to gather all necessary information, then output three documents: `requirements.md`, `plan.md`, and `app_spec.json`. 
-    The `app_spec.json` file is based on the `requirements.md` and `plan.md` file and should be a valid JSON file that can be used to generate an app using the `template_generator.py` file.
+    You are a helpful Product Manager.  
+    Your mission is to guide the user through a short interview to gather app requirements, then save them to **PRD.md**.
 
-    🧭 Key rules and objectives:
-    1. Interactive Q&A: Begin by greeting the user and explaining the process. The Requirements Analyst should then ask the user questions one at a time, in a logical order (purpose → features → UI → data → validation → persistence → etc.). Wait for the user's answer to each question before asking the next (do NOT skip ahead). Keep language non-technical and user-friendly. Offer multiple-choice options or examples if it helps the user respond.
-    2. Local-First Emphasis: Make it clear (and confirm with the user) that the app will run entirely in the browser with no server. All data stays local. Ask the user if they need data backup/export features since there's no cloud storage.
-    3. Gather Complete Requirements: Ensure you ask about:
-    - The app's purpose and target users.
-    - The core features and user tasks (what the user wants to accomplish).
-    - Preferred UI layout or style, and any specific design wishes.
-    - The type of data to be stored and any specific data fields.
-    - Any rules or validations for the data (e.g., required fields, limits).
-    - Non-functional needs like performance, offline usage, accessibility, or platform (desktop/mobile).
-    - Any other expectations (e.g., does it need to be installable as an offline app, any branding considerations).
-    4. Acknowledge & Clarify: After each user answer, briefly acknowledge it and possibly rephrase to confirm understanding. If something is unclear or incomplete, ask a follow-up question to clarify. The QA agent should note if any requirement is ambiguous and prompt for clarification.
-    5. No technical jargon for user: During questioning, speak in everyday terms. For example, say "save the information in your browser" instead of "use IndexedDB for persistence".
-    6. Logical Order: Follow a natural progression in questions. (If the user gives an answer that implies changes to a previous answer, it's okay to revisit or refine.)
-    7. After Q&A, Summarize Requirements: Once all questions are answered, summarize the user's needs in a document called `user_requirements.md`. This should be a Markdown list of all the collected answers, organized by topic. Use clear headings or bullet points for each requirement category. This file is essentially the *what* and *why* of the app in the user's words.
-    8. Produce Development Plan: Next, produce `plan.md` - a detailed Markdown document for the developers. Use a professional tone and include the following sections:
-    - Overview: High-level summary of the app's purpose and context.
-    - Functional Requirements: A breakdown of features (possibly as user stories with acceptance criteria).
-    - Non-Functional Requirements: Performance targets (e.g. fast load, small size), accessibility standards (WCAG 2.1 AA), offline-first behavior, security/privacy notes (data never leaves device).
-    - UI/UX Design: Description of the UI components and user flow. Mention how many screens or dialogs, and design elements influenced by the user's preferences. (No actual graphics, just descriptions or simple text mockups.)
-    - Data Model: Explain what data will be stored and how. Specify use of localStorage or IndexedDB and list the data schema (keys, fields) in a table format.
-    - Validation & Edge Cases: List input validations and how the app handles edge scenarios (e.g. empty list messages, error handling).
-    - Storage & Persistence: Emphasize that it's a local-first app: no backend. Describe the use of Service Worker for offline caching and the data backup/export mechanism (e.g., user can download a JSON file of data).
-    - Implementation Plan: Outline the app's folder/file structure and any key technical choices. (E.g., vanilla JS or a particular framework, if relevant, and how the code will be organized into modules/files.)
-    - Quality Assurance Checklist: Provide a list of tests or checks (with markdown checkboxes [ ]). Ensure it covers functionality, offline mode, performance, and accessibility (keyboard navigation, screen reader test, etc.).
-    - Success Criteria: Define what it means for the MVP to be "done" and successful (all features working offline, performance within limits, no critical bugs, etc.).
-    - Future Enhancements: Suggest a few possible future features or improvements that are NOT in this MVP (like multi-user sync, plugin architecture, optional cloud sync, or deployment to web/app stores), to show the app can be extended.
-    9. Formatting Requirements for Markdown:
-    - Use appropriate Markdown headings for each section (e.g. `##` for top-level, `###` for subsections).
-    - Use bullet points or numbered lists to break down items (features, requirements, etc.) wherever helpful for readability.
-    - Include tables for structured data (like data models or user story mappings).
-    - Use blockquotes for any important note or to quote a user's requirement for emphasis.
-    - Use markdown checkboxes (`- [ ]`) for the QA testing checklist.
-    - Use emojis where they add clarity (for example, ✅ for done criteria, ⚠️ for warnings, 💡 for tips, 📱 for mobile, etc.). Use them sparingly and appropriately to maintain a professional tone.
-    10. Review and Consistency: Before finalizing, the QA Agent should review the plan to ensure all user requirements from `user_requirements.md` are addressed in `plan.md`. If anything is missing or inconsistent, add or correct it. Ensure terminology is consistent (use the same names for features in both files).
-    11. Output Delivery: After writing `user_requirements.md` and `plan.md` and successfully calling `build_app_spec_from_docs`, stop the process and return success message. Do not display or request file contents from the user.
+    ---
 
-    📂 File Handling Rules
-    1. Ask for App Name First  
-    - Always start by asking the user for their app name.  
-    2. Folder Path Convention  
+    ## 📋 Requirement Rules
+    - Start by asking for the **app name**.  
+    - Ask **one question at a time** in plain, everyday language.  
+    - Follow this order of questions:
+
+    1. **Purpose & users** → What problem should the app solve, and who will use it?  
+    2. **Features** → What main things should people be able to do? (e.g., add tasks, set reminders, organize, etc.)  
+    3. **Look & feel** → How should it look and work? (simple list, mobile-friendly, desktop, or both)  
+    4. **Information to save** → What details do you want to keep for each item? (title, notes, due date, reminder, etc.)  
+    5. **Rules** → Any checks needed when people enter info? (title required, dates must make sense)  
+    6. **Other needs** → Should it work offline, load quickly, or be easy for everyone to use?  
+    7. **Extras** → Do you want backup/export, the app to be installable offline, or special branding?  
+    8. **When it's done** → What would make you feel the app is complete? How should it handle empty lists or mistakes?  
+
+    ---
+
+    ## 📋 Questioning Principles
+    - **One Step at a Time** → Keep questions simple and clear.  
+    - **Everyday Language** → Avoid jargon; focus on what the app does and who uses it.  
+    - **Guided, Multiple-Choice** → Offer examples or options, but let the user type their own.  
+    - **Logical Flow** → Start with the big picture, then go into details.  
+
+    ---
+
+    ## ✅ Final PRD Summary
+    At the end of the interview, summarize all answers clearly in **PRD.md**.  
+    Include: purpose, features, UI/UX notes, data model, rules, non-functional needs, extras, and success criteria.  
+    Format the output in clean Markdown with headings and bullet points.  
+
+    ---
+
+    ## 📂 File Handling Rules
+
+    1. **Folder Path Convention**  
     - Use the app name in the folder path:  
-
         ```
         {final_path}/<app_name>
         ```
-    3. Files to Create (after requirements interview)  
-    - `user_requirements.md` → contains the gathered requirements.  
-    - `plan.md` → contains the structured plan.  
-    - `app_spec.json` → contains the app specification.  
-    4. Create Folder if Missing  
+    2. **Files to Create (after requirements interview)**  
+    - `PRD.md` → contains the gathered requirements.
+    3. **Create Folder if Missing**  
     - If the parent folder does not exist, create it first:  
-
         ```python
         mkdir(path)
         ```
-    5. Write Files  
+    4. **Write Files**  
     - Save files using:  
-
         ```python
         write_file(path, content)
         ```
-    6. Build AppSpec from user requirements and plan  
-
-        ```python
-        build_app_spec_from_docs(user_req_path, plan_path, app_spec_path)
-        ```
-    7. Restriction  
+    5. **Restriction**  
     - ❌ Do not write anywhere else.
-
-
-    Now begin. Start by greeting the user and begin asking about their app idea, one question at a time, as instructed. Remember to stay in character as the helpful multi-agent assistant throughout.
     """
 
-    Interview_agent.run(task)
+    print("🚀 Start running Requirement interview agent")
+    requirement_interview_agent.run(prd_task)
+
+    # Planning Agent
+    planning_agent = ToolCallingAgent(
+        tools=[
+            read_file,
+            write_file
+        ],
+        model=OpenAIServerModel('gpt-5-mini'),
+        step_callbacks={PlanningStep: print},
+    )
+
+    plan_task = f"""
+    You are a skilled software architect.  
+    You review Product Requirements Documents (PRD) and break the work down into a series of tasks for the development team.  
+    We'll hand these tasks to another team, so your plan must be clear, scoped, and developer-ready.  
+
+    You are the **Planning Agent**.  
+    Based on the `PRD.md`, create `PLAN.md` for developers.  
+
+    ---
+
+    ## Plan Structure
+    - **Overview** → App purpose and context.  
+    - **Functional Requirements** → Features written as user stories with acceptance criteria. Clearly mark which are **MVP** features and which are optional.  
+    - **Traceability Table** → A mapping from each PRD requirement to the corresponding plan section(s).  
+    - **Non-Functional Requirements** → Offline use, fast load, accessibility, performance.  
+    - **UI/UX Design** → Respect PRD style preferences (do not add extra UI patterns beyond what's in the PRD, unless very minimal). Describe screens, flows, and interactions.  
+    - **Data Model** → Use localStorage/IndexedDB. Present schema as tables (fields, types).  
+    - **Validation & Edge Cases** → Input rules, empty states, error handling.  
+    - **Storage & Persistence** → Local-first emphasis. Offline caching. Export/import backup **only if explicitly mentioned in PRD**; otherwise place in Future Enhancements.  
+    - **Implementation Plan** → Tech stack, folder/file structure, modular organization.  
+    - **QA Checklist** → Use `[ ]` checkboxes for functionality, offline mode, accessibility, performance.  
+    - **Success Criteria** → Define conditions for MVP “done” status.  
+    - **Future Enhancements** → Capture any extra features not in PRD, or enhancements the team may add later.  
+
+    ---
+
+    ## Formatting
+    - Use clear Markdown headings.  
+    - Use bullet points and tables where helpful.  
+    - Use blockquotes for important notes.  
+    - Add emojis sparingly (✅, ⚠️, 💡).  
+
+    ---
+
+    ## Scope Discipline
+    - Expand only on features explicitly in PRD.  
+    - If you propose additional ideas, list them strictly under **Future Enhancements**.  
+    - Respect the simplicity of the PRD's intent.  
+
+    ---
+
+    ## INSTRUCTIONS
+    Please review the PRD carefully and produce an implementation plan that follows the above structure.  
+    Write your plan to: `{final_path}/<app_name>/PLAN.md`
+    """
+
+    print("🚀 Start running Planning agent")
+    planning_agent.run(plan_task)
+
+    # Review agent
+    review_agent = ToolCallingAgent(
+        tools=[
+            read_file,
+            write_file
+        ],
+        model=OpenAIServerModel('gpt-5-mini'),
+        step_callbacks={PlanningStep: print},
+    )
+
+    review_task = f"""
+    You are the Review Agent.  
+    Your mission is to review `user_requirements.md` and `plan.md`.  
+
+    ---
+
+    ## Review Tasks
+    1. Verify every requirement from `user_requirements.md` is covered in `plan.md`.  
+    2. Ensure terminology consistency (same feature names in both files).  
+    3. Check that `plan.md` includes all sections:  
+    - Overview  
+    - Functional Requirements  
+    - Non-Functional Requirements  
+    - UI/UX Design  
+    - Data Model  
+    - Validation & Edge Cases  
+    - Storage & Persistence  
+    - Implementation Plan  
+    - QA Checklist  
+    - Success Criteria  
+    - Future Enhancements  
+    4. Identify missing or unclear points → ask user for clarification.  
+    5. Approve only when documents are complete and ready to build `app_spec.json`.  
+
+    ---
+
+    ## INSTRUCTIONS
+
+    Please review the PRD.md and PLAN.md, and save the file that you write to `{final_path}/<app_name>/app_spec.json`
+    """
+
+    print("🚀 Start running Review agent")
+    review_agent.run(review_task)
 
     # Path to your spec file (adjust if needed)
-    # C:/Users/cbz/Desktop/VibeCoder/VibeCoder/Requirements_Gatherer
-    spec_path = Path("C:/Users/cbz/Desktop/VibeCoder/VibeCoder/Requirements_Gatherer/ChinaTodo/app_spec.json")
+    spec_files  = list(final_path.rglob("app_spec.json"))
+    if not spec_files :
+        return FileNotFoundError("❌ No app_spec.json found under result/")
+    spec_path = max(spec_files, key=lambda p: p.stat().st_mtime)
 
     if spec_path.exists():
         # Load JSON and parse into AppSpec

@@ -186,7 +186,7 @@ def build_app_spec_from_docs(user_req_path: str, plan_path: str, out_path: str) 
     Returns:
         A message containing the absolute path to the written JSON file.
     """
-    client = OpenAI()  # 用环境变量 OPENAI_API_KEY
+    client = OpenAI()  # Use env variable 
     user_req = Path(user_req_path).read_text(encoding="utf-8")
     plan_md  = Path(plan_path).read_text(encoding="utf-8")
 
@@ -264,28 +264,6 @@ def get_user_feedback(question_for_user: str) -> str:
 #     except Exception as e:
 #         return f"Error running npm command: {str(e)}"
 
-
-@tool
-def run_npm_in(path: str, command: str, timeout: int = 600) -> str:
-    """
-    在指定目录运行 npm 命令（一次性命令）。返回退出码/输出/错误。
-    适合：npm ci / npm install / npm run build / npm run test / npm run lint / npm run preview
-    """
-    allowed = {
-        "npm ci", "npm install",
-        "npm run build", "npm run test", "npm run lint", "npm run preview", "npm -v"
-    }
-    if command not in allowed:
-        return f"Command not allowed: {command}"
-
-    try:
-        p = subprocess.run(
-            command, shell=True, cwd=path,
-            capture_output=True, text=True, timeout=timeout, check=False
-        )
-        return f"Exit:{p.returncode}\nSTDOUT:\n{p.stdout}\nSTDERR:\n{p.stderr}"
-    except subprocess.TimeoutExpired as e:
-        return f"Timeout after {timeout}s.\nSTDOUT:\n{e.stdout}\nSTDERR:\n{e.stderr}"
 
 # Example usage with smolagents
 if __name__ == "__main__":
