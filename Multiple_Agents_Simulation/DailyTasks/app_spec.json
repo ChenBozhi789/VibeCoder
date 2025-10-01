@@ -1,0 +1,17 @@
+{
+  "app_name": "daily-tasks",
+  "display_name": "DailyTasks",
+  "description": "A simple task manager for busy individuals to add and track everyday tasks with titles, descriptions, and due dates. Supports offline usage with background sync and conflict resolution.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "react-simple-spa",
+  "output_dir": "result",
+  "custom_content": "<div>\n  <header>\n    <h1>DailyTasks</h1>\n    <p>Simple list view to add and scan daily chores and reminders.</p>\n  </header>\n  <main>\n    <section className=\"empty-state\">\n      <h2>No tasks yet</h2>\n      <p>Click “Add” to create your first task with a title, description, and due date.</p>\n    </section>\n    <section className=\"task-list\">\n      {/* Tasks will appear here in a simple, minimal list */}\n    </section>\n  </main>\n</div>",
+  "features": [
+    "localStorage",
+    "offline-sync",
+    "background-sync",
+    "conflict-resolution",
+    "responsive"
+  ]
+}

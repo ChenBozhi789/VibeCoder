@@ -1,0 +1,20 @@
+{
+  "app_name": "blue-todo",
+  "display_name": "BlueToDo",
+  "description": "A simple, lightweight personal to‑do app for quickly creating, editing, and managing tasks locally. Focuses on speed, minimal UI, offline support, and basic validation (title required).",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "react-simple-spa",
+  "output_dir": "result",
+  "custom_content": "<h1>Welcome to BlueToDo</h1><p>A lightweight, fast personal todo app.</p>",
+  "features": [
+    "add-edit-tasks (title required, notes optional/planned)",
+    "localStorage persistence",
+    "offline-support",
+    "fast-minimal-ui",
+    "undo-delete",
+    "empty-state with CTA",
+    "validation-title-required",
+    "export-csv-json (manual backup/export)"
+  ]
+}

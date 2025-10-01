@@ -208,3 +208,130 @@ review_agent.run(review_task)
 
 # The app_spec.json file is written to disk at this point
 
+# These codes is from sdlc_agents_simulation.py
+
+# # 4. Code agent - CodeAgent
+# code_agent = CodeAgent(
+#    tools=[
+#       read_file,
+#       write_file
+#    ],
+#    model=OpenAIServerModel('gpt-5-mini'),
+#    # step_callbacks={PlanningStep: print},
+# )
+
+# code_task = f"""
+# You are the **Code Generation Agent**.  
+# Your mission is to turn `app_spec.json` and `ui_prototype.html` into a working application.
+
+# ### ⚙️ Tasks
+# 1. Generate the application code structure:
+#    - Frontend (React/Tailwind OR vanilla HTML/JS depending on spec).
+#    - Backend (Node/Express, Django, or local-first approach).
+#    - Data model files.
+# 2. Implement all functional requirements listed in `app_spec.json`.
+# 3. Save files under `{final_path}/<app_name>/src`.
+# 4. Ensure:
+#    - Code runs without syntax errors.
+#    - Comments explain major functions.
+#    - Config files (e.g., `package.json`, `requirements.txt`) are included.
+
+# Deliver a **minimal but functional** app matching the spec.
+# """
+
+# print("🚀 Start running Code agent")
+# code_agent.run(code_task)
+
+# # 5. QA agent - ToolCallingAgent
+# qa_agent = ToolCallingAgent(
+#    tools=[
+#       read_file,
+#       write_file
+#    ],
+#    model=OpenAIServerModel('gpt-5-mini'),
+#    # step_callbacks={PlanningStep: print},
+# )
+
+# qa_task = f"""
+# You are the **Quality Assurance Agent**.  
+# Your mission is to validate the generated application.
+
+# ### ✅ Tasks
+# 1. Read the generated code files.
+# 2. Check against `app_spec.json`:
+#    - Do all features exist?
+#    - Are edge cases handled (empty lists, invalid input)?
+# 3. Run static analysis:
+#    - Code style (linting rules).
+#    - Security checks (input sanitization, storage use).
+# 4. Generate a report `qa_report.md` including:
+#    - Passed ✅ / Failed ❌ checks.
+#    - Issues found with explanations.
+#    - Suggestions for fixes.
+
+# Goal: ensure app is **correct, robust, and user-ready**.
+# """
+
+# print("🚀 Start running QA agent")
+# qa_agent.run(qa_task)
+
+# # 6. User feedback agent - ToolCallingAgent
+# user_feedback_agent = ToolCallingAgent(
+#    tools=[
+#       get_user_requirements
+#    ],
+#    model=OpenAIServerModel('gpt-5-mini'),
+#    # step_callbacks={PlanningStep: print},
+# )
+
+# user_feedback_task = f"""
+# You are the **User Feedback Agent**.  
+# Your mission is to collect user impressions after testing the app.
+
+# ### 🗣️ Tasks
+# 1. Ask the user:
+#    - Was the app easy to use?
+#    - Did all features work as expected?
+#    - What improvements would you like?
+# 2. Record feedback in `user_feedback.md`.
+# 3. Summarize key takeaways:
+#    - Usability score (1–5).
+#    - Functional gaps.
+#    - Suggested enhancements.
+
+# Deliver structured feedback that can guide the Code Enhancement Agent.
+# """
+
+# print("🚀 Start running User feedback agent")
+# user_feedback_agent.run(user_feedback_task)
+
+# # 7. Code enhancement agent - CodeAgent
+# code_enhancement_agent = CodeAgent(
+#    tools=[
+#       read_file,
+#       write_file
+#    ],
+#    model=OpenAIServerModel('gpt-5-mini'),
+#    # step_callbacks={PlanningStep: print},
+# )
+
+# code_enhancement_task = f"""
+# You are the **User Feedback Agent**.  
+# Your mission is to collect user impressions after testing the app.
+
+# ### 🗣️ Tasks
+# 1. Ask the user:
+#    - Was the app easy to use?
+#    - Did all features work as expected?
+#    - What improvements would you like? 
+# 2. Record feedback in `user_feedback.md`.
+# 3. Summarize key takeaways:
+#    - Usability score (1–5).
+#    - Functional gaps.
+#    - Suggested enhancements.
+
+# Deliver structured feedback that can guide the Code Enhancement Agent.
+# """
+
+# print("🚀 Start running Code enhancement agent")
+# code_enhancement_agent.run(code_enhancement_task)

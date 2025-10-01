@@ -1,0 +1,25 @@
+{
+  "app_name": "green-todo",
+  "display_name": "GreenToDo",
+  "description": "A lightweight, mobile-first personal task manager for quick task capture, editing, due dates, and offline-first sync with export options.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "react-simple-spa",
+  "output_dir": "result",
+  "custom_content": "<div className=\"greentodo-app\">\n  <header className=\"header\">\n    <h1>GreenToDo</h1>\n    <p className=\"subtitle\">Tap + to add your first task</p>\n  </header>\n\n  <main className=\"main\">\n    {/* Quick add input for rapid task capture */}\n    <div className=\"quick-add\">\n      <input aria-label=\"New task title\" placeholder=\"Add a task...\" />\n      <button aria-label=\"Add task\">+</button>\n    </div>\n\n    {/* Task list skeleton */}\n    <ul className=\"task-list\">\n      {/* Each task: title, notes preview, due date, completed state */}\n      {/* Example item structure shown for template only */}\n      <li className=\"task-item\">\n        <label>\n          <input type=\"checkbox\" />\n          <div className=\"task-content\">\n            <div className=\"task-title\">Example task</div>\n            <div className=\"task-meta\">Due: — · Created: —</div>\n          </div>\n        </label>\n      </li>\n    </ul>\n\n    {/* Empty state */}\n    <div className=\"empty-state\">Add your first task to get started.</div>\n  </main>\n</div>",
+  "features": [
+    "mobile-first",
+    "quick-add",
+    "add-edit-tasks",
+    "task-notes",
+    "due-dates",
+    "creation-and-modified-metadata",
+    "completion-status",
+    "offline-first",
+    "localStorage-persistence",
+    "sync-when-online",
+    "export-csv",
+    "export-json",
+    "undo-delete"
+  ]
+}

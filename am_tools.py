@@ -173,14 +173,13 @@ def mkdir(directory: str, parents: Optional[bool] = True, exist_ok: Optional[boo
         raise
 
 @tool
-# Generate AppSpec from user requirements and plan
-def build_app_spec_from_docs(user_req_path: str, plan_path: str, out_path: str) -> AppSpec:
+# Generate AppSpec from user requirements
+def build_app_spec_from_docs(user_req_path: str, out_path: str) -> AppSpec:
     """
-    Build an AppSpec JSON from two markdown files.
+    Build an AppSpec JSON from a markdown file.
 
     Args:
-        user_req_path: Path (string) to user_requirements.md
-        plan_path: Path (string) to plan.md
+        user_req_path: Path (string) to Project Requirements Document (PRD.md)
         out_path: Path (string) to write spec/app_spec.json
 
     Returns:
@@ -188,18 +187,14 @@ def build_app_spec_from_docs(user_req_path: str, plan_path: str, out_path: str) 
     """
     client = OpenAI()  # Use env variable 
     user_req = Path(user_req_path).read_text(encoding="utf-8")
-    plan_md  = Path(plan_path).read_text(encoding="utf-8")
 
     system = (
-        "You convert the given user requirements + plan into a valid AppSpec JSON. "
+        "You convert the given user requirements into a valid AppSpec JSON. "
         "Be strict with types. If a field is missing, infer safe defaults."
     )
     user = f"""
-        [USER_REQUIREMENTS_MD]
+        [PRD_MD]
         {user_req}
-
-        [PLAN_MD]
-        {plan_md}
 
         [OUTPUT_SCHEMA]
         - Produce an AppSpec with fields:
@@ -245,24 +240,340 @@ def get_user_feedback(question_for_user: str) -> str:
     return response
 
 
-# @tool
-# def run_npm(command: str) -> str:
-#     """
-#     Run an npm command in the current project directory.
-#     Captures stdout/stderr and returns them to the agent for debugging.
-#     """
-#     try:
-#         result = subprocess.run(
-#             command,
-#             shell=True,
-#             capture_output=True,
-#             text=True,
-#             check=False
-#         )
-#         output = f"Exit Code: {result.returncode}\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
-#         return output
-#     except Exception as e:
-#         return f"Error running npm command: {str(e)}"
+# UI Agent Tools for template-based React UI generation
+
+@tool
+def ensure_dir(directory: str) -> str:
+    """
+    Ensure a directory exists, creating it if necessary.
+    
+    Args:
+        directory: Directory path relative to current directory
+        
+    Returns:
+        Success message with the directory path
+    """
+    return mkdir(directory, parents=True, exist_ok=True)
+
+@tool
+def copy_from_template(template_path: str, target_path: str, source_file: str) -> str:
+    """
+    Copy a file from the template directory to the target location.
+    
+    Args:
+        template_path: Path to the template directory
+        target_path: Target directory path relative to current directory
+        source_file: Source file path relative to template directory
+        
+    Returns:
+        Success message with the copied file path
+    """
+    current_dir = Path.cwd()
+    template_dir = (current_dir / template_path).resolve()
+    target_dir = (current_dir / target_path).resolve()
+    
+    # Security check: ensure template path is within current directory
+    if not str(template_dir).startswith(str(current_dir)):
+        raise ValueError(f"Access denied: Template path '{template_path}' is outside current directory")
+    
+    # Security check: ensure target path is within current directory
+    if not str(target_dir).startswith(str(current_dir)):
+        raise ValueError(f"Access denied: Target path '{target_path}' is outside current directory")
+    
+    source_path = template_dir / source_file
+    dest_path = target_dir / source_file
+    
+    if not source_path.exists():
+        raise FileNotFoundError(f"Template file not found: {source_file}")
+    
+    # Create target directory if it doesn't exist
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Copy the file
+    import shutil
+    shutil.copy2(source_path, dest_path)
+    
+    return f"Successfully copied {source_file} from template to {target_path}"
+
+@tool
+def render_placeholders(file_path: str, replacements: str) -> str:
+    """
+    Replace placeholders in a file with actual values.
+    
+    Args:
+        file_path: Path to the file to modify
+        replacements: JSON string containing placeholder replacements
+        
+    Returns:
+        Success message
+    """
+    import json
+    
+    current_dir = Path.cwd()
+    target_path = (current_dir / file_path).resolve()
+    
+    # Security check
+    if not str(target_path).startswith(str(current_dir)):
+        raise ValueError(f"Access denied: Path '{file_path}' is outside current directory")
+    
+    if not target_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    # Parse replacements
+    try:
+        replacements_dict = json.loads(replacements)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in replacements: {e}")
+    
+    # Read file content
+    with open(target_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Apply replacements
+    for placeholder, value in replacements_dict.items():
+        content = content.replace(placeholder, str(value))
+    
+    # Write back to file
+    with open(target_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    
+    return f"Successfully applied {len(replacements_dict)} placeholder replacements to {file_path}"
+
+@tool
+def write_files(files_data: str) -> str:
+    """
+    Write multiple files at once.
+    
+    Args:
+        files_data: JSON string containing file paths and their contents
+        
+    Returns:
+        Success message with count of files written
+    """
+    import json
+    
+    try:
+        files_dict = json.loads(files_data)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in files_data: {e}")
+    
+    written_count = 0
+    for file_path, content in files_dict.items():
+        write_file(file_path, content)
+        written_count += 1
+    
+    return f"Successfully wrote {written_count} files"
+
+@tool
+def apply_patches(file_path: str, patches: str) -> str:
+    """
+    Apply patches to a file using anchor-based insertions.
+    
+    Args:
+        file_path: Path to the file to patch
+        patches: JSON string containing patch operations
+        
+    Returns:
+        Success message with patch results
+    """
+    import json
+    
+    current_dir = Path.cwd()
+    target_path = (current_dir / file_path).resolve()
+    
+    # Security check
+    if not str(target_path).startswith(str(current_dir)):
+        raise ValueError(f"Access denied: Path '{file_path}' is outside current directory")
+    
+    if not target_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    try:
+        patches_list = json.loads(patches)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in patches: {e}")
+    
+    # Read file content
+    with open(target_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    
+    applied_patches = 0
+    failed_patches = []
+    
+    for patch in patches_list:
+        try:
+            anchor = patch.get('anchor')
+            content = patch.get('content')
+            operation = patch.get('operation', 'insert_after')  # insert_after, insert_before, replace
+            
+            if not anchor or content is None:
+                failed_patches.append(f"Invalid patch: missing anchor or content")
+                continue
+            
+            # Find anchor line
+            anchor_found = False
+            for i, line in enumerate(lines):
+                if anchor in line:
+                    anchor_found = True
+                    if operation == 'insert_after':
+                        lines.insert(i + 1, content + '\n')
+                    elif operation == 'insert_before':
+                        lines.insert(i, content + '\n')
+                    elif operation == 'replace':
+                        lines[i] = content + '\n'
+                    applied_patches += 1
+                    break
+            
+            if not anchor_found:
+                failed_patches.append(f"Anchor '{anchor}' not found")
+                
+        except Exception as e:
+            failed_patches.append(f"Patch failed: {str(e)}")
+    
+    # Write back to file
+    with open(target_path, 'w', encoding='utf-8') as f:
+        f.writelines(lines)
+    
+    result = f"Applied {applied_patches} patches to {file_path}"
+    if failed_patches:
+        result += f". Failed patches: {'; '.join(failed_patches)}"
+    
+    return result
+
+@tool
+def write_manifest(manifest_path: str, manifest_data: str) -> str:
+    """
+    Write or update the UI manifest file.
+    
+    Args:
+        manifest_path: Path to the manifest file
+        manifest_data: JSON string containing manifest data
+        
+    Returns:
+        Success message
+    """
+    import json
+    from datetime import datetime
+    
+    try:
+        manifest_dict = json.loads(manifest_data)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in manifest_data: {e}")
+    
+    # Add timestamp
+    manifest_dict['generated_at'] = datetime.now().isoformat()
+    
+    # Write manifest file
+    write_file(manifest_path, json.dumps(manifest_dict, indent=2))
+    
+    return f"Successfully wrote manifest to {manifest_path}"
+
+@tool
+def basic_check(check_path: str) -> str:
+    """
+    Perform basic syntax/lint check on the generated UI.
+    
+    Args:
+        check_path: Path to the UI directory to check
+        
+    Returns:
+        Check report as JSON string
+    """
+    import json
+    import subprocess
+    from pathlib import Path
+    
+    current_dir = Path.cwd()
+    target_path = (current_dir / check_path).resolve()
+    
+    # Security check
+    if not str(target_path).startswith(str(current_dir)):
+        raise ValueError(f"Access denied: Path '{check_path}' is outside current directory")
+    
+    if not target_path.exists():
+        raise FileNotFoundError(f"Directory not found: {check_path}")
+    
+    from datetime import datetime
+    report = {
+        'timestamp': datetime.now().isoformat(),
+        'directory': str(target_path),
+        'checks': {},
+        'errors': [],
+        'warnings': []
+    }
+    
+    # Check for package.json
+    package_json = target_path / 'package.json'
+    if package_json.exists():
+        report['checks']['package_json'] = 'found'
+    else:
+        report['errors'].append('package.json not found')
+    
+    # Check for main entry files
+    main_files = ['src/main.tsx', 'src/App.tsx', 'index.html']
+    for file in main_files:
+        file_path = target_path / file
+        if file_path.exists():
+            report['checks'][file] = 'found'
+        else:
+            report['warnings'].append(f'{file} not found')
+    
+    # Try to run TypeScript check if tsc is available
+    try:
+        result = subprocess.run(
+            ['npx', 'tsc', '--noEmit'],
+            cwd=target_path,
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        if result.returncode == 0:
+            report['checks']['typescript'] = 'passed'
+        else:
+            report['errors'].append(f'TypeScript errors: {result.stderr}')
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        report['warnings'].append('TypeScript check skipped (tsc not available)')
+    
+    # Try to run ESLint if available
+    try:
+        result = subprocess.run(
+            ['npx', 'eslint', 'src/'],
+            cwd=target_path,
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        if result.returncode == 0:
+            report['checks']['eslint'] = 'passed'
+        else:
+            report['warnings'].append(f'ESLint warnings: {result.stdout}')
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        report['warnings'].append('ESLint check skipped (eslint not available)')
+    
+    # Write check report
+    check_report_path = target_path / 'check_report.json'
+    with open(check_report_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    
+    return json.dumps(report, indent=2)
+
+@tool
+def save_ui_file(file_path: str, content: str) -> str:
+    """
+    Save a file in the UI directory, enforcing UI-only writes.
+    
+    Args:
+        file_path: File path relative to UI directory
+        content: File content
+        
+    Returns:
+        Success message
+    """
+    # Ensure the file path is within a UI directory
+    if not file_path.startswith('ui/'):
+        raise ValueError("UI files must be saved under the 'ui/' directory")
+    
+    return write_file(file_path, content)
 
 
 # Example usage with smolagents

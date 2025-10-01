@@ -80,7 +80,7 @@ def main(verbose: bool = False):
     Args:
         verbose: If True, show detailed progress and agent steps
     """
-    # PRD Agent
+    # 1. PRD Agent
     requirement_interview_agent = ToolCallingAgent(
         tools=[
             get_user_feedback,
@@ -162,66 +162,7 @@ def main(verbose: bool = False):
     print("🚀 Start running Requirement interview agent")
     requirement_interview_agent.run(prd_task)
 
-    # Planning Agent
-    planning_agent = ToolCallingAgent(
-        tools=[
-            read_file,
-            write_file
-        ],
-        model=OpenAIServerModel('gpt-5-mini'),
-        step_callbacks={PlanningStep: print},
-    )
-
-    plan_task = f"""
-    You are a skilled software architect.  
-    You review Product Requirements Documents (PRD) and break the work down into a series of tasks for the development team.  
-    We'll hand these tasks to another team, so your plan must be clear, scoped, and developer-ready.  
-
-    You are the **Planning Agent**.  
-    Based on the `PRD.md`, create `PLAN.md` for developers.  
-
-    ---
-
-    ## Plan Structure
-    - **Overview** → App purpose and context.  
-    - **Functional Requirements** → Features written as user stories with acceptance criteria. Clearly mark which are **MVP** features and which are optional.  
-    - **Traceability Table** → A mapping from each PRD requirement to the corresponding plan section(s).  
-    - **Non-Functional Requirements** → Offline use, fast load, accessibility, performance.  
-    - **UI/UX Design** → Respect PRD style preferences (do not add extra UI patterns beyond what's in the PRD, unless very minimal). Describe screens, flows, and interactions.  
-    - **Data Model** → Use localStorage/IndexedDB. Present schema as tables (fields, types).  
-    - **Validation & Edge Cases** → Input rules, empty states, error handling.  
-    - **Storage & Persistence** → Local-first emphasis. Offline caching. Export/import backup **only if explicitly mentioned in PRD**; otherwise place in Future Enhancements.  
-    - **Implementation Plan** → Tech stack, folder/file structure, modular organization.  
-    - **QA Checklist** → Use `[ ]` checkboxes for functionality, offline mode, accessibility, performance.  
-    - **Success Criteria** → Define conditions for MVP “done” status.  
-    - **Future Enhancements** → Capture any extra features not in PRD, or enhancements the team may add later.  
-
-    ---
-
-    ## Formatting
-    - Use clear Markdown headings.  
-    - Use bullet points and tables where helpful.  
-    - Use blockquotes for important notes.  
-    - Add emojis sparingly (✅, ⚠️, 💡).  
-
-    ---
-
-    ## Scope Discipline
-    - Expand only on features explicitly in PRD.  
-    - If you propose additional ideas, list them strictly under **Future Enhancements**.  
-    - Respect the simplicity of the PRD's intent.  
-
-    ---
-
-    ## INSTRUCTIONS
-    Please review the PRD carefully and produce an implementation plan that follows the above structure.  
-    Write your plan to: `{final_path}/<app_name>/PLAN.md`
-    """
-
-    print("🚀 Start running Planning agent")
-    planning_agent.run(plan_task)
-
-    # Review agent
+    # 2. Review agent
     review_agent = ToolCallingAgent(
         tools=[
             read_file,
@@ -264,6 +205,91 @@ def main(verbose: bool = False):
 
     print("🚀 Start running Review agent")
     review_agent.run(review_task)
+
+    # 3. UI agent - CodeAgent
+    ui_agent = ToolCallingAgent(
+        tools=[
+            read_file,
+            write_file
+        ],
+        model=OpenAIServerModel('gpt-5-mini'),
+        step_callbacks={PlanningStep: print},
+    )
+
+    ui_task = f"""
+    The prompt will be added later
+    """
+
+    print("🚀 Start running UI agent")
+    ui_agent.run(ui_task)
+
+    # 4. Code agent - CodeAgent
+    code_agent = CodeAgent(
+        tools=[
+            read_file,
+            write_file
+        ],
+        model=OpenAIServerModel('gpt-5-mini'),
+        step_callbacks={PlanningStep: print},
+    )
+
+    code_task = f"""
+    The prompt will be added later
+    """
+
+    print("🚀 Start running Code agent")
+    code_agent.run(code_task)
+
+    # 5. QA agent - ToolCallingAgent
+    qa_agent = ToolCallingAgent(
+        tools=[
+            read_file,
+            write_file
+        ],
+        model=OpenAIServerModel('gpt-5-mini'),
+        step_callbacks={PlanningStep: print},
+    )
+
+    qa_task = f"""
+    The prompt will be added later
+    """
+
+    print("🚀 Start running QA agent")
+    qa_agent.run(qa_task)
+
+    # 6. User feedback agent - ToolCallingAgent
+    user_feedback_agent = ToolCallingAgent(
+        tools=[
+            get_user_feedback
+        ],
+        model=OpenAIServerModel('gpt-5-mini'),
+        step_callbacks={PlanningStep: print},
+    )
+
+    user_feedback_task = f"""
+    The prompt will be added later
+    """
+
+    print("🚀 Start running User feedback agent")
+    user_feedback_agent.run(user_feedback_task)
+
+    # 7. Code enhancement agent - CodeAgent
+    code_enhancement_agent = CodeAgent(
+        tools=[
+            read_file,
+            write_file
+        ],
+        model=OpenAIServerModel('gpt-5-mini'),
+        step_callbacks={PlanningStep: print},
+    )
+
+    code_enhancement_task = f"""
+    The prompt will be added later
+    """
+
+    print("🚀 Start running Code enhancement agent")
+    code_enhancement_agent.run(code_enhancement_task)
+
 
     # Path to your spec file (adjust if needed)
     spec_files  = list(final_path.rglob("app_spec.json"))
@@ -310,6 +336,7 @@ def main(verbose: bool = False):
         return None
 
     # Step 2: Initialize CodeAgent for enhancements (if needed)
+    print("🚀 Start running Enhancement agent")
     Enhance_agent = ToolCallingAgent(
         tools=[
             # File system operations for enhancements
