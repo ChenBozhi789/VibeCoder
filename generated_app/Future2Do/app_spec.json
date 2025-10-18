@@ -1,0 +1,18 @@
+{
+  "app_name": "future2do",
+  "display_name": "Future2Do",
+  "description": "Help individuals quickly capture, review, and complete their daily to-dos without friction.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Mark Tasks Complete/Incomplete",
+    "Quick Add",
+    "Create/Edit/Delete Tasks",
+    "List & Preview Tasks",
+    "Search & Filter Tasks",
+    "Data Portability"
+  ]
+}

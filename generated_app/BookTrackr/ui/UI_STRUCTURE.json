@@ -1,0 +1,112 @@
+{
+  "appName": "",
+  "version": "1.0.0",
+  "rootDir": "ui/",
+  "routes": [
+    {
+      "path": "/",
+      "component": "index.html"
+    }
+  ],
+  "components": [
+    {
+      "name": "Index",
+      "path": "index.html",
+      "type": "page",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "input",
+        "submit",
+        "change"
+      ],
+      "imports": [
+        "js/main.js"
+      ],
+      "components": [],
+      "sections": [
+        "nav-home",
+        "nav-new-book",
+        "nav-settings",
+        "home-view",
+        "search-bar",
+        "filter-status",
+        "book-list",
+        "form-view",
+        "form-title",
+        "book-form",
+        "book-id",
+        "title",
+        "author",
+        "totalPages",
+        "currentPage",
+        "description",
+        "tags",
+        "cancel-btn",
+        "delete-btn",
+        "settings-view",
+        "import-btn",
+        "import-file",
+        "export-btn",
+        "clear-data-btn"
+      ]
+    },
+    {
+      "name": "Main",
+      "path": "js\\main.js",
+      "type": "module",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "DOMContentLoaded"
+      ],
+      "imports": [],
+      "functions": [
+        "showView",
+        "renderBookList"
+      ],
+      "dom_hooks": [
+        "home-view",
+        "form-view",
+        "settings-view",
+        "nav-home",
+        "nav-new-book",
+        "nav-settings",
+        "nav-new-book",
+        "cancel-btn",
+        "book-list",
+        "form-title",
+        "book-form",
+        "delete-btn"
+      ]
+    }
+  ],
+  "stateManagement": {
+    "pattern": "vanilla-js",
+    "stores": []
+  },
+  "apiClients": [],
+  "styles": {
+    "system": "css",
+    "files": [
+      "css\\style.css"
+    ]
+  },
+  "assets": [],
+  "files": [
+    {
+      "path": "css\\style.css",
+      "lines": 202
+    },
+    {
+      "path": "index.html",
+      "lines": 89
+    },
+    {
+      "path": "js\\main.js",
+      "lines": 112
+    }
+  ]
+}

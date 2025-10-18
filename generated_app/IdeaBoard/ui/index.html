@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdeaBoard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>IdeaBoard</h1>
+            <button id="settings-btn">Settings</button>
+        </header>
+
+        <main>
+            <div id="idea-list-view" class="view">
+                <div class="toolbar">
+                    <button id="new-idea-btn">New Idea</button>
+                    <input type="text" id="search-bar" placeholder="Search ideas...">
+                    <input type="text" id="filter-tags" placeholder="Filter by tags...">
+                </div>
+                <ul id="idea-list"></ul>
+            </div>
+
+            <div id="idea-form-view" class="view" style="display: none;">
+                <form id="idea-form">
+                    <input type="hidden" id="idea-id">
+                    <input type="text" id="idea-title" placeholder="Title" required>
+                    <textarea id="idea-description" placeholder="Description"></textarea>
+                    <input type="text" id="idea-tags" placeholder="Tags (comma-separated)">
+                    <div class="form-buttons">
+                        <button type="submit">Save</button>
+                        <button type="button" id="cancel-btn">Cancel</button>
+                        <button type="button" id="delete-btn" style="display: none;">Delete</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="settings-view" class="view" style="display: none;">
+                <h2>Settings</h2>
+                <div class="settings-actions">
+                    <button id="import-btn">Import Ideas</button>
+                    <input type="file" id="import-file" accept=".json" style="display: none;">
+                    <button id="export-btn">Export Ideas</button>
+                    <button id="clear-all-btn">Clear All Data</button>
+                     <button type="button" id="cancel-settings-btn">Cancel</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

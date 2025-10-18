@@ -1,0 +1,21 @@
+{
+  "app_name": "goalsetter",
+  "display_name": "GoalSetter",
+  "description": "Help individuals plan, track, and complete personal goals by setting clear targets, visualizing progress, and marking achievements.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Goal planning workspace with target dates",
+    "Progress tracking",
+    "Achievements and status",
+    "Sorting and organization",
+    "Quick actions",
+    "Create/Edit/Delete goals",
+    "List & Preview of goals",
+    "Search & Filter functionality",
+    "Data Portability"
+  ]
+}

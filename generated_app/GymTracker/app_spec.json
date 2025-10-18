@@ -1,0 +1,17 @@
+{
+  "app_name": "gymtracker",
+  "display_name": "GymTracker",
+  "description": "Help gym-goers quickly log each exercise they perform during a workout, capturing the number of sets and the reps for each set.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Exercise logging with per-set reps",
+    "Create/Edit/Delete exercise logs",
+    "List & Preview of exercise logs",
+    "Search & Filter by exercise name and date",
+    "Data Portability with JSON export/import"
+  ]
+}

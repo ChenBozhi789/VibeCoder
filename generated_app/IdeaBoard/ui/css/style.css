@@ -1,0 +1,67 @@
+
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.toolbar {
+    margin-bottom: 20px;
+}
+
+#idea-list {
+    list-style: none;
+    padding: 0;
+}
+
+.idea-item {
+    background-color: #fff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.idea-item:hover {
+    background-color: #eee;
+}
+
+.view {
+    margin-top: 20px;
+}
+
+#idea-form input,
+#idea-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.form-buttons button {
+    margin-left: 10px;
+}
+
+.settings-actions button {
+    display: block;
+    margin-bottom: 10px;
+}

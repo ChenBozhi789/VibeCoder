@@ -1,0 +1,18 @@
+{
+  "app_name": "smart-cards",
+  "display_name": "SmartCards",
+  "description": "Help students and self-learners memorize and retain information efficiently using simple, offline-ready flashcards.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Flashcard CRUD",
+    "Study Mode (One-by-One Review)",
+    "List & Preview",
+    "Search & Filter",
+    "Data Portability",
+    "Basic Settings"
+  ]
+}

@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymTracker</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>GymTracker</h1>
+            <nav>
+                <button id="nav-list">List</button>
+                <button id="nav-settings">Settings</button>
+            </nav>
+        </header>
+
+        <main>
+            <!-- List View -->
+            <div id="list-view">
+                <div class="controls">
+                    <button id="new-log-btn">New Log</button>
+                    <input type="text" id="search-input" placeholder="Search by exercise name...">
+                    <input type="date" id="date-filter">
+                </div>
+                <ul id="log-list"></ul>
+            </div>
+
+            <!-- Detail/Form View -->
+            <div id="detail-view" style="display: none;">
+                <form id="log-form">
+                    <input type="hidden" id="log-id">
+                    <div>
+                        <label for="exercise-name">Exercise Name:</label>
+                        <input type="text" id="exercise-name" required>
+                    </div>
+                    <div>
+                        <label for="workout-date">Workout Date:</label>
+                        <input type="date" id="workout-date" required>
+                    </div>
+                    <div>
+                        <label for="notes">Notes:</label>
+                        <textarea id="notes"></textarea>
+                    </div>
+                    <div id="sets-container">
+                        <label>Sets (reps):</label>
+                    </div>
+                    <button type="button" id="add-set-btn">Add Set</button>
+                    <button type="submit">Save</button>
+                    <button type="button" id="cancel-btn">Cancel</button>
+                </form>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settings-view" style="display: none;">
+                <h2>Settings</h2>
+                <div>
+                    <button id="import-btn">Import Data</button>
+                    <input type="file" id="import-file" accept=".json" style="display: none;">
+                </div>
+                <div>
+                    <button id="export-btn">Export Data</button>
+                </div>
+                <div>
+                    <button id="clear-data-btn">Clear All Data</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

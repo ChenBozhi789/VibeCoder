@@ -1,0 +1,115 @@
+{
+  "appName": "",
+  "version": "1.0.0",
+  "rootDir": "ui/",
+  "routes": [
+    {
+      "path": "/",
+      "component": "index.html"
+    }
+  ],
+  "components": [
+    {
+      "name": "Index",
+      "path": "index.html",
+      "type": "page",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "input",
+        "submit",
+        "change"
+      ],
+      "imports": [
+        "js/main.js"
+      ],
+      "components": [],
+      "sections": [
+        "settings-btn",
+        "list-view",
+        "new-goal-btn",
+        "search-input",
+        "filter-status",
+        "sort-by",
+        "goal-list",
+        "form-view",
+        "goal-form",
+        "goal-id",
+        "title",
+        "description",
+        "tags",
+        "targetDate",
+        "progress-value",
+        "progress",
+        "achieved",
+        "cancel-btn",
+        "delete-btn",
+        "settings-modal",
+        "import-btn",
+        "import-file",
+        "export-btn",
+        "clear-data-btn",
+        "confirm-modal",
+        "confirm-message",
+        "confirm-yes-btn",
+        "confirm-no-btn"
+      ]
+    },
+    {
+      "name": "Main",
+      "path": "js\\main.js",
+      "type": "module",
+      "props": [],
+      "state": [],
+      "events": [
+        "DOMContentLoaded",
+        "click"
+      ],
+      "imports": [],
+      "functions": [
+        "showListView",
+        "showFormView",
+        "renderGoalList"
+      ],
+      "dom_hooks": [
+        "list-view",
+        "form-view",
+        "settings-modal",
+        "confirm-modal",
+        "new-goal-btn",
+        "settings-btn",
+        "cancel-btn",
+        "goal-form",
+        "goal-list",
+        "#settings-modal .close-btn"
+      ]
+    }
+  ],
+  "stateManagement": {
+    "pattern": "vanilla-js",
+    "stores": []
+  },
+  "apiClients": [],
+  "styles": {
+    "system": "css",
+    "files": [
+      "css\\style.css"
+    ]
+  },
+  "assets": [],
+  "files": [
+    {
+      "path": "css\\style.css",
+      "lines": 149
+    },
+    {
+      "path": "index.html",
+      "lines": 108
+    },
+    {
+      "path": "js\\main.js",
+      "lines": 74
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "app_name": "ideaboard",
+  "display_name": "IdeaBoard",
+  "description": "Help individuals quickly capture, organize, and review their ideas in a fast, distraction-free space.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Quick Capture",
+    "Create/Edit/Delete",
+    "List & Preview",
+    "Search & Filter",
+    "Data Portability",
+    "Optional Tagging"
+  ]
+}

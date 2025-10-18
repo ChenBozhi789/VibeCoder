@@ -1,0 +1,171 @@
+{
+  "appName": "",
+  "version": "1.0.0",
+  "rootDir": "ui/",
+  "routes": [
+    {
+      "path": "/",
+      "component": "index.html"
+    }
+  ],
+  "components": [
+    {
+      "name": "Index",
+      "path": "index.html",
+      "type": "page",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "input",
+        "submit",
+        "change"
+      ],
+      "imports": [
+        "js/main.js"
+      ],
+      "components": [],
+      "sections": [
+        "openSettingsBtn",
+        "app",
+        "quick-add",
+        "quickAddForm",
+        "quickAddInput",
+        "quickAddBtn",
+        "toolbar",
+        "searchInput",
+        "statusFilter",
+        "tagFilter",
+        "list-view",
+        "list-states",
+        "state-loading",
+        "state-empty",
+        "state-error",
+        "taskList",
+        "pagination",
+        "prevPageBtn",
+        "pageInfo",
+        "nextPageBtn",
+        "taskDialog",
+        "taskForm",
+        "taskDialogTitle",
+        "taskTitle",
+        "taskTitleError",
+        "taskDescription",
+        "taskTags",
+        "taskCompleted",
+        "saveTaskBtn",
+        "cancelTaskBtn",
+        "deleteTaskBtn",
+        "deleteHelp",
+        "confirmDeleteDialog",
+        "confirmDeleteTitle",
+        "confirmDeleteYes",
+        "confirmDeleteNo",
+        "settingsDialog",
+        "settingsTitle",
+        "exportBtn",
+        "importFile",
+        "clearAllBtn",
+        "closeSettingsBtn"
+      ]
+    },
+    {
+      "name": "Main",
+      "path": "js\\main.js",
+      "type": "module",
+      "props": [],
+      "state": [],
+      "events": [
+        "input",
+        "click",
+        "close",
+        "dblclick",
+        "keydown",
+        "change",
+        "submit"
+      ],
+      "imports": [],
+      "functions": [
+        "openCreate",
+        "openEdit",
+        "render",
+        "renderItem",
+        "setState",
+        "clearStates",
+        "showLoading",
+        "uid",
+        "isoNow",
+        "fmtDate",
+        "parseTags",
+        "mergeUniqueById",
+        "normalizeTasks",
+        "debounce",
+        "openDialog",
+        "cleanup"
+      ],
+      "dom_hooks": [
+        "quickAddForm",
+        "quickAddInput",
+        "searchInput",
+        "statusFilter",
+        "tagFilter",
+        "taskList",
+        "state-loading",
+        "state-empty",
+        "state-error",
+        "list-view",
+        "taskDialog",
+        "taskForm",
+        "taskTitle",
+        "taskTitleError",
+        "taskDescription",
+        "taskTags",
+        "taskCompleted",
+        "deleteTaskBtn",
+        "cancelTaskBtn",
+        "confirmDeleteDialog",
+        "confirmDeleteYes",
+        "confirmDeleteNo",
+        "settingsDialog",
+        "openSettingsBtn",
+        "closeSettingsBtn",
+        "exportBtn",
+        "importFile",
+        "clearAllBtn",
+        "input[name=",
+        "taskDialogTitle",
+        "quickAddBtn",
+        "taskDialogTitle",
+        "quickAddBtn",
+        "toolbar"
+      ]
+    }
+  ],
+  "stateManagement": {
+    "pattern": "vanilla-js",
+    "stores": []
+  },
+  "apiClients": [],
+  "styles": {
+    "system": "css",
+    "files": [
+      "css\\style.css"
+    ]
+  },
+  "assets": [],
+  "files": [
+    {
+      "path": "css\\style.css",
+      "lines": 182
+    },
+    {
+      "path": "index.html",
+      "lines": 160
+    },
+    {
+      "path": "js\\main.js",
+      "lines": 437
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "app_name": "feedbox",
+  "display_name": "FeedBox",
+  "description": "FeedBox is a lightweight web app for collecting and reviewing user feedback.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Feedback Submission",
+    "Create/Edit/Delete",
+    "List & Preview",
+    "Search & Filter",
+    "Dashboard Summary",
+    "Data Portability"
+  ]
+}

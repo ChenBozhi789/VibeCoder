@@ -1,0 +1,85 @@
+{
+  "appName": "",
+  "version": "1.0.0",
+  "rootDir": "ui/",
+  "routes": [
+    {
+      "path": "/",
+      "component": "index.html"
+    }
+  ],
+  "components": [
+    {
+      "name": "Index",
+      "path": "index.html",
+      "type": "page",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "input",
+        "submit",
+        "change"
+      ],
+      "imports": [
+        "js/main.js"
+      ],
+      "components": [],
+      "sections": [
+        "add-expense",
+        "expense-form",
+        "expense-description",
+        "expense-amount",
+        "expenses-list",
+        "expenses"
+      ]
+    },
+    {
+      "name": "Main",
+      "path": "js\\main.js",
+      "type": "module",
+      "props": [],
+      "state": [],
+      "events": [
+        "DOMContentLoaded",
+        "submit"
+      ],
+      "imports": [],
+      "functions": [
+        "addExpense"
+      ],
+      "dom_hooks": [
+        "expense-form",
+        "expense-description",
+        "expense-amount",
+        "expenses"
+      ]
+    }
+  ],
+  "stateManagement": {
+    "pattern": "vanilla-js",
+    "stores": []
+  },
+  "apiClients": [],
+  "styles": {
+    "system": "css",
+    "files": [
+      "css\\style.css"
+    ]
+  },
+  "assets": [],
+  "files": [
+    {
+      "path": "css\\style.css",
+      "lines": 70
+    },
+    {
+      "path": "index.html",
+      "lines": 35
+    },
+    {
+      "path": "js\\main.js",
+      "lines": 29
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Recipe Box</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header>
+        <h1>My Recipe Box</h1>
+        <nav>
+            <button id="nav-list">All Recipes</button>
+            <button id="nav-new">New Recipe</button>
+            <button id="nav-settings">Settings</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- List View -->
+        <section id="list-view">
+            <div class="toolbar">
+                <input type="search" id="search-input" placeholder="Search recipes...">
+                <select id="sort-select">
+                    <option value="newest">Sort by Newest</option>
+                    <option value="oldest">Sort by Oldest</option>
+                    <option value="title">Sort by Title</option>
+                </select>
+                <input type="text" id="tag-filter-input" placeholder="Filter by tag...">
+            </div>
+            <div id="recipe-list"></div>
+            <p id="list-empty" class="empty-state" style="display: none;">No recipes found. <a href="#" id="add-recipe-link">Add one now!</a></p>
+        </section>
+
+        <!-- Form View -->
+        <section id="form-view" style="display: none;">
+            <form id="recipe-form">
+                <input type="hidden" id="recipe-id">
+                <div class="form-group">
+                    <label for="title-input">Title</label>
+                    <input type="text" id="title-input" required>
+                    <small id="title-hint" class="form-hint error" style="display: none;">Title is required.</small>
+                </div>
+                <div class="form-group">
+                    <label for="description-input">Description</label>
+                    <textarea id="description-input" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="tags-input">Tags (comma-separated)</label>
+                    <input type="text" id="tags-input">
+                </div>
+                <div class="form-group">
+                    <h3>Ingredients</h3>
+                    <div id="ingredients-list"></div>
+                    <button type="button" id="add-ingredient-btn">Add Ingredient</button>
+                </div>
+                <div class="form-group">
+                    <h3>Instructions</h3>
+                    <div id="instructions-list"></div>
+                    <button type="button" id="add-step-btn">Add Step</button>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="save-btn">Save Recipe</button>
+                    <button type="button" id="cancel-btn">Cancel</button>
+                    <button type="button" id="delete-btn" class="danger" style="display: none;">Delete Recipe</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Settings View -->
+        <section id="settings-view" style="display: none;">
+            <h2>Settings</h2>
+            <div class="settings-group">
+                <h3>Import / Export</h3>
+                <p>Save your recipes to a file or load them from a backup.</p>
+                <div class="settings-actions">
+                    <button id="export-btn">Export to JSON</button>
+                    <input type="file" id="import-file" accept=".json" style="display: none;">
+                    <button id="import-btn">Import from JSON</button>
+                </div>
+            </div>
+            <div class="settings-group danger-zone">
+                <h3>Danger Zone</h3>
+                <p>Permanently delete all recipes from your device.</p>
+                <div class="settings-actions">
+                    <button id="clear-btn" class="danger">Clear All Data</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <div class="modal-actions">
+                <button id="modal-cancel">Cancel</button>
+                <button id="modal-confirm" class="danger">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div id="status" class="status-bar"></div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

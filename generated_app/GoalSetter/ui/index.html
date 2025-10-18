@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoalSetter</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GoalSetter</h1>
+            <div>
+                <button id="settings-btn" class="btn btn-secondary">Settings</button>
+                <button id="new-goal-btn" class="btn btn-primary">New Goal</button>
+            </div>
+        </header>
+
+        <!-- List View -->
+        <main id="list-view">
+            <div class="controls">
+                 <div class="search-filter-sort">
+                    <input type="text" id="search-input" placeholder="Search goals...">
+                    <select id="filter-status">
+                        <option value="all">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="achieved">Achieved</option>
+                    </select>
+                    <select id="sort-by">
+                        <option value="updatedAt-desc">Sort by Last Updated</option>
+                        <option value="createdAt-desc">Sort by Date Created</option>
+                        <option value="targetDate-asc">Sort by Target Date</option>
+                        <option value="progress-desc">Sort by Progress</option>
+                    </select>
+                </div>
+            </div>
+            <ul id="goal-list">
+                <!-- Goals will be rendered here by JavaScript -->
+            </ul>
+        </main>
+
+        <!-- Form View (for creating/editing goals) -->
+        <main id="form-view" class="hidden">
+            <form id="goal-form">
+                <input type="hidden" id="goal-id">
+                <div class="form-group">
+                    <label for="title">Goal Title</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="tags">Tags (comma-separated)</label>
+                    <input type="text" id="tags">
+                </div>
+                <div class="form-group">
+                    <label for="targetDate">Target Date</label>
+                    <input type="date" id="targetDate">
+                </div>
+                <div class="form-group">
+                    <label for="progress">Progress: <span id="progress-value">0%</span></label>
+                    <input type="range" id="progress" min="0" max="100" value="0">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="achieved">
+                        Mark as Achieved
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <div>
+                        <button type="submit" class="btn btn-primary">Save Goal</button>
+                        <button type="button" id="cancel-btn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                    <button type="button" id="delete-btn" class="btn btn-danger hidden">Delete Goal</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" style="float: right; cursor: pointer;">&times;</span>
+            <h2>Settings</h2>
+            <div class="form-group">
+                <label>Data Management</label>
+                <button id="export-btn" class="btn btn-secondary">Export Data</button>
+                <button id="import-btn" class="btn btn-secondary">Import Data</button>
+                <input type="file" id="import-file" class="hidden" accept=".json">
+            </div>
+            <div class="form-group">
+                 <button id="clear-data-btn" class="btn btn-danger">Clear All Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content">
+            <p id="confirm-message">Are you sure?</p>
+            <div class="modal-actions">
+                <button id="confirm-yes-btn" class="btn btn-danger">Yes</button>
+                <button id="confirm-no-btn" class="btn btn-secondary">No</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

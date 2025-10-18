@@ -1,0 +1,102 @@
+{
+  "appName": "",
+  "version": "1.0.0",
+  "rootDir": "ui/",
+  "routes": [
+    {
+      "path": "/",
+      "component": "index.html"
+    }
+  ],
+  "components": [
+    {
+      "name": "Index",
+      "path": "index.html",
+      "type": "page",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "input",
+        "submit",
+        "change"
+      ],
+      "imports": [
+        "js/main.js"
+      ],
+      "components": [],
+      "sections": [
+        "new-idea-btn",
+        "idea-list-view",
+        "search-bar",
+        "filter-tags",
+        "idea-list",
+        "idea-form-view",
+        "idea-form",
+        "idea-id",
+        "idea-title",
+        "idea-description",
+        "idea-tags",
+        "cancel-btn",
+        "delete-btn",
+        "settings-view",
+        "import-btn",
+        "import-file",
+        "export-btn",
+        "clear-all-btn",
+        "settings-btn"
+      ]
+    },
+    {
+      "name": "Main",
+      "path": "js\\main.js",
+      "type": "module",
+      "props": [],
+      "state": [],
+      "events": [
+        "DOMContentLoaded",
+        "click"
+      ],
+      "imports": [],
+      "functions": [
+        "showView",
+        "renderIdeas"
+      ],
+      "dom_hooks": [
+        "new-idea-btn",
+        "cancel-btn",
+        "settings-btn",
+        "idea-list-view",
+        "idea-form-view",
+        "settings-view",
+        "idea-list"
+      ]
+    }
+  ],
+  "stateManagement": {
+    "pattern": "vanilla-js",
+    "stores": []
+  },
+  "apiClients": [],
+  "styles": {
+    "system": "css",
+    "files": [
+      "css\\style.css"
+    ]
+  },
+  "assets": [],
+  "files": [
+    {
+      "path": "css\\style.css",
+      "lines": 80
+    },
+    {
+      "path": "index.html",
+      "lines": 58
+    },
+    {
+      "path": "js\\main.js",
+      "lines": 52
+    }
+  ]
+}

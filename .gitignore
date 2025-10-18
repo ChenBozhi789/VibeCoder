@@ -15,5 +15,6 @@ node_modules/
 packages/
 gemini-cli/
 result/
-templates/react-simple-spa/
-templates/react-simple-spa-test/
+legacy/
+# Streamlit secrets
+.streamlit/secrets.toml

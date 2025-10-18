@@ -1,0 +1,205 @@
+{
+  "appName": "",
+  "version": "1.0.0",
+  "rootDir": "ui/",
+  "routes": [
+    {
+      "path": "/",
+      "component": "index.html"
+    }
+  ],
+  "components": [
+    {
+      "name": "Index",
+      "path": "index.html",
+      "type": "page",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "input",
+        "submit",
+        "change"
+      ],
+      "imports": [
+        "index.js"
+      ],
+      "components": [],
+      "sections": [
+        "nav-list",
+        "nav-new",
+        "nav-settings",
+        "main",
+        "list-view",
+        "list-heading",
+        "search-input",
+        "sort-select",
+        "tag-filter-input",
+        "list-empty",
+        "recipe-list",
+        "form-view",
+        "form-heading",
+        "recipe-form",
+        "recipe-id",
+        "title-input",
+        "title-hint",
+        "tags-input",
+        "description-input",
+        "ingredients-list",
+        "add-ingredient-btn",
+        "instructions-list",
+        "add-step-btn",
+        "save-btn",
+        "cancel-btn",
+        "delete-btn",
+        "settings-view",
+        "settings-heading",
+        "import-heading",
+        "import-file",
+        "import-btn",
+        "export-heading",
+        "export-btn",
+        "danger-heading",
+        "clear-btn",
+        "modal",
+        "modal-title",
+        "modal-message",
+        "modal-cancel",
+        "modal-confirm",
+        "status"
+      ]
+    },
+    {
+      "name": "Index",
+      "path": "index.js",
+      "type": "module",
+      "props": [],
+      "state": [],
+      "events": [
+        "input",
+        "change",
+        "keydown",
+        "click",
+        "submit"
+      ],
+      "imports": [],
+      "functions": [
+        "showView",
+        "renderList",
+        "formatMeta",
+        "applyFilters",
+        "startNewRecipe",
+        "openRecipe",
+        "fillForm",
+        "resetForm",
+        "addIngredientRow",
+        "addIngredientRowFromData",
+        "addStepRow",
+        "addStepRowFromData",
+        "collectForm",
+        "confirmModal",
+        "onYes",
+        "onCancel",
+        "onBackdrop",
+        "onKey",
+        "confirmDelete",
+        "button",
+        "input",
+        "fieldWrap",
+        "setStatus",
+        "uid",
+        "sampleRecipes",
+        "cleanup"
+      ],
+      "dom_hooks": [
+        "nav-list",
+        "nav-new",
+        "nav-settings",
+        "list-view",
+        "form-view",
+        "settings-view",
+        "search-input",
+        "sort-select",
+        "tag-filter-input",
+        "recipe-list",
+        "list-empty",
+        "recipe-form",
+        "recipe-id",
+        "title-input",
+        "description-input",
+        "tags-input",
+        "ingredients-list",
+        "add-ingredient-btn",
+        "instructions-list",
+        "add-step-btn",
+        "save-btn",
+        "cancel-btn",
+        "delete-btn",
+        "import-file",
+        "import-btn",
+        "export-btn",
+        "clear-btn",
+        "modal",
+        "modal-message",
+        "modal-confirm",
+        "modal-cancel",
+        "status",
+        "nav-new",
+        "input[name="
+      ]
+    },
+    {
+      "name": "Main",
+      "path": "js\\main.js",
+      "type": "module",
+      "props": [],
+      "state": [],
+      "events": [
+        "click"
+      ],
+      "imports": [],
+      "functions": [
+        "changeColor"
+      ],
+      "dom_hooks": [
+        "div-hello",
+        "button"
+      ]
+    }
+  ],
+  "stateManagement": {
+    "pattern": "vanilla-js",
+    "stores": []
+  },
+  "apiClients": [],
+  "styles": {
+    "system": "css",
+    "files": [
+      "css\\style.css",
+      "index.css"
+    ]
+  },
+  "assets": [],
+  "files": [
+    {
+      "path": "css\\style.css",
+      "lines": 7
+    },
+    {
+      "path": "index.css",
+      "lines": 105
+    },
+    {
+      "path": "index.html",
+      "lines": 174
+    },
+    {
+      "path": "index.js",
+      "lines": 446
+    },
+    {
+      "path": "js\\main.js",
+      "lines": 7
+    }
+  ]
+}
