@@ -10,7 +10,7 @@ from am_tools import (
     get_current_project, get_app_name, get_prd_path, get_spec_path, get_template_path,
     get_ui_design_path, get_app_folder_path, set_ui_memory, get_ui_memory, get_all_ui_memory,
     get_feedback_tickets_path, get_enhancement_summary_path, get_test_report_path,
-    copy_template_to_ui_folder, analyze_qa_report_for_fixes_needed
+    copy_template_to_ui_folder, analyze_qa_report_for_fixes_needed, generate_vanilla_js_code
 ) 
 from pathlib import Path
 from datetime import datetime
@@ -18,6 +18,32 @@ import json, os
 from prompt_loader import prompt_loader
 import time
 import litellm
+
+# Force UTF-8 encoding on Windows
+import sys
+if sys.platform.startswith('win'):
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+    # Set environment variables for UTF-8
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    os.environ['PYTHONUTF8'] = '1'
+
+# Enhanced error handling for API issues
+def is_retryable_error(error):
+    """Check if an error is retryable (temporary API issues)"""
+    error_str = str(error).lower()
+    retryable_patterns = [
+        'no choices',
+        'unexpected api response',
+        'rate limit',
+        'timeout',
+        'connection',
+        'temporary',
+        'service unavailable',
+        'internal server error'
+    ]
+    return any(pattern in error_str for pattern in retryable_patterns)
 
 # Import agent_state from am_tools for backward compatibility
 from am_tools import agent_state
@@ -63,15 +89,30 @@ if __name__ == "__main__":
     # 1. PRD Agent execution
     prd_task = prompt_loader.load_agent_prompt("prd_agent")
     
-    try:
-        prd_agent.run(prd_task)
-        print("✅ PRD Agent completed successfully")
-    except Exception as e:
-        print(f"❌ PRD Agent failed with error: {e}")
-        print(f"Error type: {type(e).__name__}")
-        print("🔄 Continuing with UI phase...")
+    # Add retry mechanism for PRD Agent
+    max_retries = 3
+    retry_delay = 10  # seconds
 
-    # 2. UI agent - CodeAgent
+    for attempt in range(max_retries):
+        try:
+            print(f"🚀 PRD Agent attempt {attempt + 1}/{max_retries}")
+            prd_agent.run(prd_task)
+            print("✅ PRD Agent completed successfully")
+            break
+        except Exception as e:
+            print(f"❌ PRD Agent attempt {attempt + 1} failed: {e}")
+            print(f"Error type: {type(e).__name__}")
+            
+            if attempt < max_retries - 1 and is_retryable_error(e):
+                print(f"⏳ Retryable error detected. Waiting {retry_delay} seconds before retry...")
+                time.sleep(retry_delay)
+            elif attempt < max_retries - 1:
+                print(f"⏳ Non-retryable error, but attempting retry anyway. Waiting {retry_delay} seconds...")
+                time.sleep(retry_delay)
+            else:
+                print("🔄 All retries exhausted. Continuing with UI phase...")
+
+    # 2. UI agent
     ui_agent = CodeAgent(
         tools=[
             mkdir,
@@ -100,13 +141,22 @@ if __name__ == "__main__":
 
     ui_task = prompt_loader.load_agent_prompt("ui_agent")
 
-    try:
-        ui_agent.run(ui_task)
-        print("✅ UI Agent completed successfully")
-    except Exception as e:
-        print(f"❌ UI Agent failed with error: {e}")
-        print(f"Error type: {type(e).__name__}")
-        print("🔄 Continuing with implementation phase...")
+    # Add retry mechanism for UI Agent
+    for attempt in range(max_retries):
+        try:
+            print(f"🚀 UI Agent attempt {attempt + 1}/{max_retries}")
+            ui_agent.run(ui_task)
+            print("✅ UI Agent completed successfully")
+            break
+        except Exception as e:
+            print(f"❌ UI Agent attempt {attempt + 1} failed: {e}")
+            print(f"Error type: {type(e).__name__}")
+            
+            if attempt < max_retries - 1:
+                print(f"⏳ Waiting {retry_delay} seconds before retry...")
+                time.sleep(retry_delay)
+            else:
+                print("🔄 All retries exhausted. Continuing with implementation phase...")
 
     # print("\n[INFO] UI Agent finished. Waiting for 30 seconds to ensure a fresh API rate limit window...")
     # time.sleep(30)
@@ -216,13 +266,22 @@ if __name__ == "__main__":
     # Load validation task from template
     validation_task = prompt_loader.load_agent_prompt("validation_agent")
 
-    try:
-        validation_agent.run(validation_task)
-        print("✅ Validation Agent completed successfully")
-    except Exception as e:
-        print(f"❌ Validation Agent failed with error: {e}")
-        print(f"Error type: {type(e).__name__}")
-        print("🔄 Continuing with QA phase...")
+    # Add retry mechanism for Validation Agent
+    for attempt in range(max_retries):
+        try:
+            print(f"🚀 Validation Agent attempt {attempt + 1}/{max_retries}")
+            validation_agent.run(validation_task)
+            print("✅ Validation Agent completed successfully")
+            break
+        except Exception as e:
+            print(f"❌ Validation Agent attempt {attempt + 1} failed: {e}")
+            print(f"Error type: {type(e).__name__}")
+            
+            if attempt < max_retries - 1:
+                print(f"⏳ Waiting {retry_delay} seconds before retry...")
+                time.sleep(retry_delay)
+            else:
+                print("🔄 All retries exhausted. Continuing with QA phase...")
 
     # 4. QA agent
     qa_agent = ToolCallingAgent(
@@ -249,8 +308,23 @@ if __name__ == "__main__":
 
     qa_task = prompt_loader.load_agent_prompt("qa_agent")
 
+    # Add retry mechanism for QA Agent
     print("🚀 Start running QA agent")
-    qa_agent.run(qa_task)
+    for attempt in range(max_retries):
+        try:
+            print(f"🚀 QA Agent attempt {attempt + 1}/{max_retries}")
+            qa_agent.run(qa_task)
+            print("✅ QA Agent completed successfully")
+            break
+        except Exception as e:
+            print(f"❌ QA Agent attempt {attempt + 1} failed: {e}")
+            print(f"Error type: {type(e).__name__}")
+            
+            if attempt < max_retries - 1:
+                print(f"⏳ Waiting {retry_delay} seconds before retry...")
+                time.sleep(retry_delay)
+            else:
+                print("🔄 All retries exhausted. Continuing with Auto Fix phase...")
 
     # 5. Conditional Auto Fix agent - only runs if QA report indicates fixes are needed
     print("\n--- Auto Fix Decision Phase ---")
@@ -280,27 +354,36 @@ if __name__ == "__main__":
               list_existing_projects,
               get_current_project,
               read_ui_structure_json,
-              generate_functional_code,
-              implement_data_persistence,
-              implement_state_management,
               validate_implementation,
-              read_project_requirements
+              read_project_requirements,
+              generate_vanilla_js_code
            ],
            model=gemini_pro_model,
-           max_steps=20,
+           max_steps=30,  # Increased steps for more thorough fixing
            # step_callbacks={PlanningStep: print},
         )
 
         auto_fix_task = prompt_loader.load_agent_prompt("auto_fix_agent")
 
-        try:
-            print("🚀 Start running Auto Fix agent")
-            auto_fix_agent.run(auto_fix_task)
-            print("✅ Auto Fix agent completed successfully")
-        except Exception as e:
-            print(f"❌ Auto Fix agent failed with error: {e}")
-            print(f"Error type: {type(e).__name__}")
-            print("🔄 Continuing with next phase...")
+        # Add a retry mechanism for Auto Fix agent
+        max_retries = 3
+        retry_delay = 10  # seconds
+
+        for attempt in range(max_retries):
+            try:
+                print(f"🚀 Auto Fix agent attempt {attempt + 1}/{max_retries}")
+                auto_fix_agent.run(auto_fix_task)
+                print("✅ Auto Fix agent completed successfully")
+                break
+            except Exception as e:
+                print(f"❌ Auto Fix agent attempt {attempt + 1} failed: {e}")
+                print(f"Error type: {type(e).__name__}")
+                
+                if attempt < max_retries - 1:
+                    print(f"⏳ Waiting {retry_delay} seconds before retry...")
+                    time.sleep(retry_delay)
+                else:
+                    print("🔄 All retries exhausted. Continuing with next phase...")
     else:
         print("✅ No fixes needed! Skipping Auto Fix agent.")
         print(f"💡 Reason: {fixes_analysis}")

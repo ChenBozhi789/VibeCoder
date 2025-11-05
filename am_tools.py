@@ -1466,7 +1466,139 @@ def validate_implementation(ui_path: str) -> str:
         if not has_utils:
             validation_report['suggestions'].append('Consider adding utility functions for data persistence')
     
+    # HTML Structure Validation (NEW)
+    validation_report['checks']['html_structure'] = 'passed'
+    html_files = list(target_path.glob('*.html')) + list(target_path.glob('**/*.html'))
+    
+    for html_file in html_files:
+        try:
+            html_content = html_file.read_text(encoding='utf-8')
+            html_issues = _validate_html_structure(html_content, str(html_file.relative_to(target_path)))
+            
+            if html_issues['errors']:
+                validation_report['checks']['html_structure'] = 'failed'
+                validation_report['errors'].extend(html_issues['errors'])
+            
+            if html_issues['warnings']:
+                validation_report['warnings'].extend(html_issues['warnings'])
+                
+        except Exception as e:
+            validation_report['warnings'].append(f'Could not validate HTML structure in {html_file.name}: {str(e)}')
+    
     return json.dumps(validation_report, indent=2)
+
+
+def _validate_html_structure(html_content: str, file_path: str) -> dict:
+    """
+    Validate HTML structure for common issues like unclosed tags, malformed structure.
+    
+    Args:
+        html_content: The HTML content to validate
+        file_path: Path to the HTML file (for error reporting)
+        
+    Returns:
+        Dictionary with 'errors' and 'warnings' lists
+    """
+    import re
+    
+    issues = {'errors': [], 'warnings': []}
+    
+    # Check for basic HTML structure
+    if not html_content.strip():
+        issues['errors'].append(f'HTML file {file_path} is empty')
+        return issues
+    
+    # Check for DOCTYPE
+    if not re.search(r'<!DOCTYPE\s+html\s*>', html_content, re.IGNORECASE):
+        issues['warnings'].append(f'Missing DOCTYPE declaration in {file_path}')
+    
+    # Check for html, head, body tags
+    if not re.search(r'<html[^>]*>', html_content, re.IGNORECASE):
+        issues['errors'].append(f'Missing <html> tag in {file_path}')
+    
+    if not re.search(r'<head[^>]*>', html_content, re.IGNORECASE):
+        issues['errors'].append(f'Missing <head> tag in {file_path}')
+    
+    if not re.search(r'<body[^>]*>', html_content, re.IGNORECASE):
+        issues['errors'].append(f'Missing <body> tag in {file_path}')
+    
+    # Check for matching opening/closing tags
+    issues.update(_check_tag_matching(html_content, file_path))
+    
+    # Check for common modal structure issues
+    issues.update(_check_modal_structure(html_content, file_path))
+    
+    return issues
+
+
+def _check_tag_matching(html_content: str, file_path: str) -> dict:
+    """Check for properly matched opening and closing tags."""
+    import re
+    
+    issues = {'errors': [], 'warnings': []}
+    
+    # Find all opening and closing tags
+    opening_tags = re.findall(r'<(\w+)[^>]*>', html_content)
+    closing_tags = re.findall(r'</(\w+)>', html_content)
+    
+    # Check for self-closing tags that should be closed
+    self_closing_tags = {'img', 'br', 'hr', 'input', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'}
+    
+    # Count tag occurrences
+    tag_counts = {}
+    for tag in opening_tags:
+        if tag.lower() not in self_closing_tags:
+            tag_counts[tag.lower()] = tag_counts.get(tag.lower(), 0) + 1
+    
+    for tag in closing_tags:
+        if tag.lower() in tag_counts:
+            tag_counts[tag.lower()] -= 1
+    
+    # Report unmatched tags
+    for tag, count in tag_counts.items():
+        if count > 0:
+            issues['errors'].append(f'Unclosed <{tag}> tag in {file_path} (missing {count} closing tag(s))')
+        elif count < 0:
+            issues['errors'].append(f'Extra closing </{tag}> tag in {file_path} (missing {abs(count)} opening tag(s))')
+    
+    return issues
+
+
+def _check_modal_structure(html_content: str, file_path: str) -> dict:
+    """Check for proper modal structure, especially modal-content containers."""
+    import re
+    
+    issues = {'errors': [], 'warnings': []}
+    
+    # Find all modal divs
+    modal_pattern = r'<div[^>]*class[^>]*modal[^>]*>'
+    modal_matches = list(re.finditer(modal_pattern, html_content, re.IGNORECASE))
+    
+    for i, modal_match in enumerate(modal_matches):
+        modal_start = modal_match.start()
+        modal_end = modal_match.end()
+        
+        # Extract the modal section by finding the next modal with class="modal" or end of file
+        next_modal_pos = modal_end
+        while next_modal_pos < len(html_content):
+            next_modal_match = re.search(r'<div[^>]*class[^>]*modal[^>]*>', html_content[next_modal_pos:], re.IGNORECASE)
+            if next_modal_match:
+                next_modal_pos += next_modal_match.start()
+                break
+            else:
+                next_modal_pos = len(html_content)
+                break
+        
+        modal_section = html_content[modal_start:next_modal_pos]
+        
+        # Check if modal-content div exists within this modal
+        modal_content_pattern = r'<div[^>]*class[^>]*modal-content[^>]*>'
+        modal_content_match = re.search(modal_content_pattern, modal_section, re.IGNORECASE)
+        
+        if not modal_content_match:
+            issues['errors'].append(f'Modal {i+1} in {file_path} is missing required <div class="modal-content"> container')
+    
+    return issues
 
 
 # Shared state manager for agent communication
@@ -1805,6 +1937,8 @@ def analyze_qa_report_for_fixes_needed() -> str:
     """
     Analyze the QA test report to determine if the auto_fix_agent should run.
     Returns 'YES' if fixes are needed, 'NO' if the app is functional, or 'ERROR' if report can't be read.
+    
+    Uses priority-based analysis focusing on executive summary and critical issues.
     """
     global agent_state
     try:
@@ -1823,59 +1957,253 @@ def analyze_qa_report_for_fixes_needed() -> str:
         # Analyze the report for critical issues
         report_lower = report_content.lower()
         
-        # Check for blocking issues
-        blocking_indicators = [
-            'non-functional',
-            'blocking issues',
-            'app crashes',
-            'app won\'t start',
-            'critical issues',
-            'doesn\'t work',
-            'broken',
-            'failed',
-            'needs critical fixes',
-            'major rework required'
-        ]
-        
-        # Check for functional status
-        functional_indicators = [
-            'functional',
-            'works perfectly',
-            'ready for development',
-            'passed',
-            'successful'
-        ]
-        
-        # Count blocking indicators
-        blocking_count = sum(1 for indicator in blocking_indicators if indicator in report_lower)
-        functional_count = sum(1 for indicator in functional_indicators if indicator in report_lower)
-        
-        # Check for specific status patterns (most specific first)
-        if 'prototype status: non-functional' in report_lower:
+        # PRIORITY 1: Check Executive Summary - Prototype Status (highest priority)
+        if 'prototype status: non-functional' in report_lower or '**prototype status**: non-functional' in report_lower:
             return "YES: App is non-functional"
-        elif 'prototype status: partially functional' in report_lower:
-            return "YES: App is only partially functional"
-        elif 'recommendation: needs critical fixes' in report_lower:
-            return "YES: Critical fixes needed"
-        elif 'recommendation: major rework required' in report_lower:
-            return "YES: Major rework required"
-        elif 'recommendation: ready for development' in report_lower:
-            return "NO: App is ready for development"
-        elif 'prototype status: functional' in report_lower:
+        elif 'prototype status: functional' in report_lower or '**prototype status**: functional' in report_lower:
             return "NO: App is functional"
-        elif 'ready for development' in report_lower:
-            return "NO: App is ready for development"
-        elif blocking_count > functional_count:
-            return f"YES: Found {blocking_count} blocking issues"
-        elif functional_count > 0 and blocking_count == 0:
-            return "NO: App appears functional"
-        elif 'functional' in report_lower and 'non-functional' not in report_lower and 'partially functional' not in report_lower:
-            return "NO: App appears functional"
+        
+        # PRIORITY 2: Check Critical Issues Count (explicit numbers)
+        if ('critical issues: 1' in report_lower or 'critical issues: 2' in report_lower or 'critical issues: 3' in report_lower or
+            '**critical issues**: 1' in report_lower or '**critical issues**: 2' in report_lower or '**critical issues**: 3' in report_lower):
+            return "YES: Critical issues found"
+        elif ('critical issues: 0' in report_lower or 'critical issues:0' in report_lower or
+              '**critical issues**: 0' in report_lower or '**critical issues**:0' in report_lower):
+            return "NO: No critical issues found"
+        
+        # PRIORITY 3: Check Recommendation (explicit guidance)
+        if ('recommendation: major rework required' in report_lower or 
+            '**recommendation**: major rework required' in report_lower):
+            return "YES: Major rework required"
+        elif ('recommendation: ready for development' in report_lower or
+              '**recommendation**: ready for development' in report_lower):
+            return "NO: Ready for development"
+        
+        # PRIORITY 4: Check for explicit blocking issues (specific patterns)
+        if '0 blocking issues found' in report_lower:
+            return "NO: No blocking issues found"
+        elif 'app crashes' in report_lower or 'app won\'t start' in report_lower:
+            return "YES: App won't start or crashes"
+        
+        # PRIORITY 5: Check for partial functionality with critical fixes needed
+        elif 'partially functional' in report_lower and 'needs critical fixes' in report_lower:
+            return "YES: Partially functional with critical fixes needed"
+        
+        # PRIORITY 6: Conservative fallback - if unclear, assume fixes needed
+        # This prevents the false negative you experienced
         else:
-            return "YES: Unable to determine status, running fixes as precaution"
+            return "YES: Status unclear, assuming fixes needed (conservative approach)"
             
     except Exception as e:
         return f"ERROR: Failed to analyze QA report: {str(e)}"
+
+@tool
+def generate_vanilla_js_code(component_type: str, functionality: str, requirements: str) -> str:
+    """
+    Generate vanilla JavaScript code for specific functionality.
+    
+    Args:
+        component_type: Type of component (e.g., 'task_manager', 'form_handler', 'data_persistence')
+        functionality: Specific functionality needed (e.g., 'add_item', 'delete_item', 'save_data')
+        requirements: Detailed requirements for the functionality
+        
+    Returns:
+        Generated vanilla JavaScript code as a string
+    """
+    import json
+    
+    # Common vanilla JS patterns for different functionalities
+    patterns = {
+        'task_manager': {
+            'add_item': '''
+// Add new item to the list
+function addItem() {
+    const input = document.getElementById('item-input');
+    const itemText = input.value.trim();
+    
+    if (itemText === '') {
+        alert('Please enter an item');
+        return;
+    }
+    
+    const item = {
+        id: Date.now(),
+        text: itemText,
+        completed: false,
+        createdAt: new Date().toISOString()
+    };
+    
+    // Add to data array
+    items.push(item);
+    
+    // Save to localStorage
+    saveData();
+    
+    // Update UI
+    renderItems();
+    
+    // Clear input
+    input.value = '';
+}
+
+// Render all items
+function renderItems() {
+    const container = document.getElementById('items-container');
+    container.innerHTML = '';
+    
+    items.forEach(item => {
+        const itemElement = createItemElement(item);
+        container.appendChild(itemElement);
+    });
+}
+
+// Create item element
+function createItemElement(item) {
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML = `
+        <span class="item-text ${item.completed ? 'completed' : ''}">${item.text}</span>
+        <button onclick="toggleItem(${item.id})">${item.completed ? 'Undo' : 'Complete'}</button>
+        <button onclick="deleteItem(${item.id})">Delete</button>
+    `;
+    return div;
+}
+''',
+            'delete_item': '''
+// Delete item from list
+function deleteItem(id) {
+    if (confirm('Are you sure you want to delete this item?')) {
+        items = items.filter(item => item.id !== id);
+        saveData();
+        renderItems();
+    }
+}
+
+// Toggle item completion
+function toggleItem(id) {
+    const item = items.find(item => item.id === id);
+    if (item) {
+        item.completed = !item.completed;
+        saveData();
+        renderItems();
+    }
+}
+''',
+            'data_persistence': '''
+// Save data to localStorage
+function saveData() {
+    try {
+        localStorage.setItem('app-data', JSON.stringify(items));
+    } catch (error) {
+        console.error('Failed to save data:', error);
+        alert('Failed to save data');
+    }
+}
+
+// Load data from localStorage
+function loadData() {
+    try {
+        const data = localStorage.getItem('app-data');
+        if (data) {
+            items = JSON.parse(data);
+        }
+    } catch (error) {
+        console.error('Failed to load data:', error);
+        items = [];
+    }
+}
+
+// Initialize app
+function initApp() {
+    loadData();
+    renderItems();
+    
+    // Add event listeners
+    document.getElementById('add-button').addEventListener('click', addItem);
+    document.getElementById('item-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            addItem();
+        }
+    });
+}
+
+// Start app when DOM is loaded
+document.addEventListener('DOMContentLoaded', initApp);
+'''
+        },
+        'form_handler': {
+            'validation': '''
+// Form validation
+function validateForm(formData) {
+    const errors = [];
+    
+    // Required field validation
+    if (!formData.name || formData.name.trim() === '') {
+        errors.push('Name is required');
+    }
+    
+    if (!formData.email || formData.email.trim() === '') {
+        errors.push('Email is required');
+    }
+    
+    // Email format validation
+    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+    if (formData.email && !emailRegex.test(formData.email)) {
+        errors.push('Please enter a valid email address');
+    }
+    
+    return errors;
+}
+
+// Handle form submission
+function handleFormSubmit(event) {
+    event.preventDefault();
+    
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        message: document.getElementById('message').value
+    };
+    
+    const errors = validateForm(formData);
+    
+    if (errors.length > 0) {
+        showErrors(errors);
+        return;
+    }
+    
+    // Process form data
+    processFormData(formData);
+}
+
+// Show validation errors
+function showErrors(errors) {
+    const errorContainer = document.getElementById('error-messages');
+    errorContainer.innerHTML = errors.map(error => `<div class="error">${error}</div>`).join('');
+}
+'''
+        }
+    }
+    
+    # Get the appropriate pattern
+    if component_type in patterns and functionality in patterns[component_type]:
+        base_code = patterns[component_type][functionality]
+        
+        # Add custom requirements if provided
+        if requirements:
+            base_code += f'''
+// Custom requirements: {requirements}
+'''
+        
+        return base_code
+    else:
+        return f'''
+// Generated code for {component_type} - {functionality}
+// Requirements: {requirements}
+
+// TODO: Implement {functionality} for {component_type}
+// This is a placeholder - implement the actual functionality based on requirements
+'''
 
 @tool
 def copy_template_to_ui_folder() -> str:

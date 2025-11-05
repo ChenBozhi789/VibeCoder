@@ -1,0 +1,17 @@
+{
+  "app_name": "newtask",
+  "display_name": "NewTask",
+  "description": "Help individuals quickly capture, view, and complete daily to-do items in a simple, fast, and distraction-free interface.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Mark Complete/Incomplete",
+    "Create/Edit/Delete",
+    "List & Preview",
+    "Search & Filter",
+    "Data Portability"
+  ]
+}

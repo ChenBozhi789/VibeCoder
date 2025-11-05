@@ -18,3 +18,5 @@ result/
 legacy/
 # Streamlit secrets
 .streamlit/secrets.toml
+# Generation log files
+generation_log/

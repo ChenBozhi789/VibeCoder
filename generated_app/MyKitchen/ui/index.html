@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyKitchen</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Home/List View -->
+        <div id="list-view">
+            <header>
+                <h1>My Recipes</h1>
+                <button id="new-recipe-btn">New Recipe</button>
+                <input type="text" id="search-bar" placeholder="Search by title...">
+            </header>
+            <main id="recipe-list"></main>
+        </div>
+
+        <!-- Detail/Form View -->
+        <div id="form-view" class="hidden">
+            <header>
+                <h1 id="form-title">Create Recipe</h1>
+            </header>
+            <main>
+                <form id="recipe-form">
+                    <input type="hidden" id="recipe-id">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" required>
+
+                    <label for="description">Description</label>
+                    <textarea id="description"></textarea>
+
+                    <label>Ingredients</label>
+                    <div id="ingredients-list"></div>
+                    <button type="button" id="add-ingredient-btn">Add Ingredient</button>
+
+                    <label for="instructions">Instructions</label>
+                    <textarea id="instructions" required></textarea>
+                    
+                    <label for="tags">Tags</label>
+                    <input type="text" id="tags" placeholder="e.g., vegan, dessert">
+
+                    <label for="favorite">Favorite</label>
+                    <input type="checkbox" id="favorite">
+
+                    <div class="form-actions">
+                        <button type="submit">Save</button>
+                        <button type="button" id="cancel-btn">Cancel</button>
+                        <button type="button" id="delete-btn" class="hidden">Delete</button>
+                    </div>
+                </form>
+            </main>
+        </div>
+
+                <!-- Settings View (Modal) -->
+        <div id="settings-view" class="hidden">
+            <div class="modal">
+                <div class="modal-content">
+                    <h2>Settings</h2>
+                    <button id="export-btn">Export Data</button>
+                    <button id="import-btn">Import Data</button>
+                    <input type="file" id="import-file" class="hidden" accept=".json">
+                    <button id="clear-data-btn">Clear All Data</button>
+                    <button id="close-settings-btn">Close</button>
+                </div>
+            </div>
+        </div>
+<button id="settings-btn">Settings</button>
+    </div>
+    <script src="js/main.js"></script>
+</body>
+</html>
