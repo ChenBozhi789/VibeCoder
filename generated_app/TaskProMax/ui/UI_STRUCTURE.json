@@ -1,0 +1,112 @@
+{
+  "appName": "",
+  "version": "1.0.0",
+  "rootDir": "ui/",
+  "routes": [
+    {
+      "path": "/",
+      "component": "index.html"
+    }
+  ],
+  "components": [
+    {
+      "name": "Index",
+      "path": "index.html",
+      "type": "page",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "input",
+        "submit",
+        "change"
+      ],
+      "imports": [
+        "js/main.js"
+      ],
+      "components": [],
+      "sections": [
+        "new-task-btn",
+        "today-view",
+        "upcoming-view",
+        "overdue-view",
+        "completed-view",
+        "recurring-view",
+        "settings-link",
+        "task-list-view",
+        "search-box",
+        "task-list",
+        "task-form-view",
+        "task-form",
+        "task-id",
+        "task-title",
+        "task-description",
+        "task-tags",
+        "task-due-date",
+        "cancel-btn",
+        "settings-view",
+        "import-btn",
+        "export-btn",
+        "clear-data-btn",
+        "confirmation-modal",
+        "confirm-yes-btn",
+        "confirm-no-btn"
+      ]
+    },
+    {
+      "name": "Main",
+      "path": "js\\main.js",
+      "type": "module",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "submit",
+        "DOMContentLoaded"
+      ],
+      "imports": [],
+      "functions": [
+        "renderTasks",
+        "showTaskListView",
+        "showTaskFormView",
+        "showSettingsView"
+      ],
+      "dom_hooks": [
+        "new-task-btn",
+        "cancel-btn",
+        "task-form",
+        "task-list-view",
+        "task-form-view",
+        "settings-view",
+        "settings-link",
+        "task-list"
+      ]
+    }
+  ],
+  "stateManagement": {
+    "pattern": "vanilla-js",
+    "stores": []
+  },
+  "apiClients": [],
+  "styles": {
+    "system": "css",
+    "files": [
+      "css\\style.css"
+    ]
+  },
+  "assets": [],
+  "files": [
+    {
+      "path": "css\\style.css",
+      "lines": 152
+    },
+    {
+      "path": "index.html",
+      "lines": 75
+    },
+    {
+      "path": "js\\main.js",
+      "lines": 62
+    }
+  ]
+}

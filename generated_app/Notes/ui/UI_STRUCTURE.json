@@ -1,0 +1,96 @@
+{
+  "appName": "",
+  "version": "1.0.0",
+  "rootDir": "ui/",
+  "routes": [
+    {
+      "path": "/",
+      "component": "index.html"
+    }
+  ],
+  "components": [
+    {
+      "name": "Index",
+      "path": "index.html",
+      "type": "page",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "input",
+        "submit",
+        "change"
+      ],
+      "imports": [
+        "js/main.js"
+      ],
+      "components": [],
+      "sections": [
+        "home-view",
+        "new-note-btn",
+        "search-input",
+        "notes-list",
+        "detail-view",
+        "note-form",
+        "note-title",
+        "note-description",
+        "note-tags",
+        "note-pinned",
+        "cancel-btn",
+        "delete-note-btn",
+        "settings-view",
+        "import-btn",
+        "import-file",
+        "export-btn",
+        "clear-all-btn"
+      ]
+    },
+    {
+      "name": "Main",
+      "path": "js\\main.js",
+      "type": "module",
+      "props": [],
+      "state": [],
+      "events": [
+        "DOMContentLoaded",
+        "click"
+      ],
+      "imports": [],
+      "functions": [
+        "showView",
+        "renderNotes"
+      ],
+      "dom_hooks": [
+        "new-note-btn",
+        "cancel-btn",
+        "notes-list"
+      ]
+    }
+  ],
+  "stateManagement": {
+    "pattern": "vanilla-js",
+    "stores": []
+  },
+  "apiClients": [],
+  "styles": {
+    "system": "css",
+    "files": [
+      "css\\style.css"
+    ]
+  },
+  "assets": [],
+  "files": [
+    {
+      "path": "css\\style.css",
+      "lines": 505
+    },
+    {
+      "path": "index.html",
+      "lines": 90
+    },
+    {
+      "path": "js\\main.js",
+      "lines": 66
+    }
+  ]
+}

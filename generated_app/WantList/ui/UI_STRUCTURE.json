@@ -1,0 +1,124 @@
+{
+  "appName": "",
+  "version": "1.0.0",
+  "rootDir": "ui/",
+  "routes": [
+    {
+      "path": "/",
+      "component": "index.html"
+    }
+  ],
+  "components": [
+    {
+      "name": "Index",
+      "path": "index.html",
+      "type": "page",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "input",
+        "submit",
+        "change"
+      ],
+      "imports": [
+        "js/main.js"
+      ],
+      "components": [],
+      "sections": [
+        "new-item-btn",
+        "search-input",
+        "filter-select",
+        "item-list",
+        "total-items",
+        "total-price",
+        "import-btn",
+        "export-btn",
+        "clear-btn",
+        "item-modal",
+        "modal-title",
+        "close-modal-btn",
+        "item-form",
+        "item-id",
+        "item-title",
+        "item-price",
+        "item-description",
+        "item-tags",
+        "cancel-btn"
+      ]
+    },
+    {
+      "name": "Main",
+      "path": "js\\main.js",
+      "type": "module",
+      "props": [],
+      "state": [],
+      "events": [
+        "submit",
+        "DOMContentLoaded",
+        "input",
+        "change",
+        "click"
+      ],
+      "imports": [],
+      "functions": [
+        "saveItems",
+        "renderItems",
+        "updateSummary",
+        "openModal",
+        "closeModal"
+      ],
+      "dom_hooks": [
+        "new-item-btn",
+        "item-modal",
+        "close-modal-btn",
+        "cancel-btn",
+        "item-form",
+        "item-list",
+        "total-items",
+        "total-price",
+        "search-input",
+        "filter-select",
+        "modal-title",
+        "item-id",
+        "import-btn",
+        "export-btn",
+        "clear-btn",
+        "item-title",
+        "item-price",
+        "item-description",
+        "item-tags",
+        "item-title",
+        "item-price",
+        "item-description",
+        "item-tags"
+      ]
+    }
+  ],
+  "stateManagement": {
+    "pattern": "vanilla-js",
+    "stores": []
+  },
+  "apiClients": [],
+  "styles": {
+    "system": "css",
+    "files": [
+      "css\\style.css"
+    ]
+  },
+  "assets": [],
+  "files": [
+    {
+      "path": "css\\style.css",
+      "lines": 183
+    },
+    {
+      "path": "index.html",
+      "lines": 104
+    },
+    {
+      "path": "js\\main.js",
+      "lines": 218
+    }
+  ]
+}
