@@ -18,6 +18,8 @@ result/
 legacy/
 optimization_plan/
 ui/
+generated_app/
+generated_log/
 # Streamlit secrets
 .streamlit/secrets.toml
 # Generation log files
