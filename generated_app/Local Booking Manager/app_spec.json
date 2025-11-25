@@ -1,0 +1,20 @@
+{
+  "app_name": "local-booking-manager",
+  "display_name": "Local Booking Manager",
+  "description": "A simple, offline-first reservation manager for solo providers and small teams to create, view, edit, and cancel bookings with clear availability checks.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Calendar & List Views",
+    "Date/Time Picker & Validation",
+    "Availability/Conflict Checks",
+    "Cancellation Flow",
+    "Create/Edit/Delete",
+    "List & Preview",
+    "Search & Filter",
+    "Data Portability"
+  ]
+}

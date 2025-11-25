@@ -1,0 +1,18 @@
+{
+  "app_name": "daily-task",
+  "display_name": "DailyTask",
+  "description": "Help individuals stay organized and focused by providing a lightweight, distraction-free daily to-do tracker.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Quick Add Task",
+    "Create/Edit/Delete",
+    "List & Preview",
+    "Mark as Complete",
+    "Search & Filter",
+    "Data Portability"
+  ]
+}

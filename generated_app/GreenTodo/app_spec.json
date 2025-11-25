@@ -1,0 +1,20 @@
+{
+  "app_name": "green-todo",
+  "display_name": "GreenTodo",
+  "description": "A fast, simple, and offline-ready personal task manager for capturing, organizing, prioritizing, and completing tasks without accounts or cloud dependencies.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Task Management",
+    "Status Filters",
+    "Sorting & Prioritization",
+    "Quick Actions",
+    "Create/Edit/Delete",
+    "List & Preview",
+    "Search & Filter",
+    "Data Portability"
+  ]
+}

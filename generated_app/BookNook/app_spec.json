@@ -1,0 +1,17 @@
+{
+  "app_name": "booknook",
+  "display_name": "BookNook",
+  "description": "Help readers maintain a simple personal log of books they\u2019ve read.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Quick Add Book",
+    "List & Preview",
+    "Create/Edit/Delete",
+    "Search & Filter",
+    "Data Portability"
+  ]
+}

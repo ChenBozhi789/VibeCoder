@@ -1,0 +1,17 @@
+{
+  "app_name": "super-task",
+  "display_name": "SuperTask",
+  "description": "SuperTask is a fast, offline-capable to-do manager that lets people quickly capture, organize, and complete tasks without account setup or sync.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Essential Task Management",
+    "Create/Edit/Delete tasks",
+    "List & Preview of tasks",
+    "Search & Filter functionality",
+    "Data Portability with JSON export/import"
+  ]
+}

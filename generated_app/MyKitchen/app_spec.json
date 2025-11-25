@@ -1,0 +1,17 @@
+{
+  "app_name": "mykitchen",
+  "display_name": "MyKitchen",
+  "description": "Help home cooks save, organize, and quickly retrieve their personal recipes.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Recipe Management",
+    "List & Preview",
+    "Search & Filter",
+    "Data Portability",
+    "Quick Actions"
+  ]
+}

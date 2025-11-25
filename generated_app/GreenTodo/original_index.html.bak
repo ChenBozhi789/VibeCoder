@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GreenTodo</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="app-header" role="banner">
+    <h1 class="app-title">GreenTodo</h1>
+    <nav class="app-nav" aria-label="Primary">
+      <ul>
+        <li><a href="#home" class="nav-link">Home</a></li>
+        <li><a href="#tasks" class="nav-link">Tasks</a></li>
+        <li><a href="#search" class="nav-link">Search</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section id="home" class="view" aria-labelledby="home-title">
+      <h2 id="home-title">Welcome to GreenTodo</h2>
+      <p>Fast, simple, offline-ready personal task manager. Use Tasks to add and manage your to-dos.</p>
+    </section>
+
+    <section id="tasks" class="view" aria-labelledby="tasks-title">
+      <h2 id="tasks-title">Tasks</h2>
+
+      <div class="controls" role="region" aria-label="Task controls">
+        <div class="control-row">
+          <label for="searchInput" class="visually-hidden">Search</label>
+          <input id="searchInput" type="search" placeholder="Search tasks..." aria-label="Search tasks" />
+          
+          <div class="filters" role="group" aria-label="Status filters">
+            <button class="tab" data-status="all" aria-pressed="true">All</button>
+            <button class="tab" data-status="active" aria-pressed="false">Active</button>
+            <button class="tab" data-status="completed" aria-pressed="false">Completed</button>
+          </div>
+
+          <label for="priorityFilter" class="visually-hidden">Priority filter</label>
+          <select id="priorityFilter" aria-label="Priority filter">
+            <option value="all">All priorities</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+
+          <label for="dueFilter" class="visually-hidden">Due filter</label>
+          <select id="dueFilter" aria-label="Due filter">
+            <option value="all">All due dates</option>
+            <option value="overdue">Overdue</option>
+            <option value="today">Due today</option>
+            <option value="week">Due this week</option>
+          </select>
+
+          <label for="sortSelect" class="visually-hidden">Sort by</label>
+          <select id="sortSelect" aria-label="Sort by">
+            <option value="dueDate_asc">Due date ↑</option>
+            <option value="dueDate_desc">Due date ↓</option>
+            <option value="priority_desc">Priority ↓</option>
+            <option value="priority_asc">Priority ↑</option>
+            <option value="createdAt_desc">Created (newest)</option>
+            <option value="createdAt_asc">Created (oldest)</option>
+          </select>
+
+          <button id="exportBtn" class="ghost" aria-label="Export tasks">Export</button>
+          <label for="importInput" class="button ghost" role="button" tabindex="0" aria-label="Import tasks">Import</label>
+          <input id="importInput" type="file" accept="application/json" hidden />
+          <button id="clearCompletedBtn" class="danger ghost" aria-label="Clear completed tasks">Clear Completed</button>
+        </div>
+      </div>
+
+      <form id="taskForm" novalidate aria-label="Add or edit task">
+        <div class="form-row">
+          <div class="form-field">
+            <label for="title">Title<span aria-hidden="true">*</span></label>
+            <input id="title" name="title" type="text" maxlength="200" required />
+            <div class="error" id="titleError" role="alert" aria-live="polite"></div>
+          </div>
+          <div class="form-field">
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="dueDate">Due date</label>
+            <input id="dueDate" name="dueDate" type="date" />
+            <div class="error" id="dueDateError" role="alert" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field full">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3" maxlength="2000"></textarea>
+            <div class="error" id="descriptionError" role="alert" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button id="saveBtn" type="submit" class="primary">Save Task</button>
+          <button id="resetBtn" type="button" class="ghost">Reset</button>
+        </div>
+      </form>
+
+      <div id="listSummary" class="summary" aria-live="polite"></div>
+
+      <ul id="taskList" class="task-list" aria-label="Task list"></ul>
+    </section>
+
+    <section id="search" class="view" aria-labelledby="search-title">
+      <h2 id="search-title">Search</h2>
+      <p>Use the search box in Tasks to filter by title or description.</p>
+    </section>
+
+    <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+      <div class="modal-content" role="document">
+        <header class="modal-header">
+          <h3 id="modalTitle">Edit Task</h3>
+          <button id="modalCloseBtn" aria-label="Close">&times;</button>
+        </header>
+        <div class="modal-body">
+          <p>Use the main form above to edit the selected task. Close to cancel.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <small>&copy; <span id="year"></span> GreenTodo</small>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+{
+  "appName": "",
+  "version": "1.0.0",
+  "rootDir": "ui/",
+  "routes": [
+    {
+      "path": "/",
+      "component": "index.html"
+    }
+  ],
+  "components": [
+    {
+      "name": "Index",
+      "path": "index.html",
+      "type": "page",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "input",
+        "submit",
+        "change"
+      ],
+      "imports": [
+        "js/main.js"
+      ],
+      "components": [],
+      "sections": [
+        "app-title",
+        "exportBtn",
+        "importInput",
+        "form-title",
+        "formError",
+        "recipeForm",
+        "recipeId",
+        "title",
+        "err-title",
+        "ingredients",
+        "err-ingredients",
+        "instructions",
+        "err-instructions",
+        "tags",
+        "err-tags",
+        "saveBtn",
+        "resetBtn",
+        "controls-title",
+        "searchInput",
+        "tagFilter",
+        "sortSelect",
+        "showPreviewToggle",
+        "list-title",
+        "emptyState",
+        "recipeList",
+        "year"
+      ]
+    },
+    {
+      "name": "Main",
+      "path": "js\\main.js",
+      "type": "module",
+      "props": [],
+      "state": [],
+      "events": [
+        "DOMContentLoaded",
+        "input",
+        "change",
+        "submit",
+        "click"
+      ],
+      "imports": [],
+      "functions": [
+        "loadState",
+        "saveState",
+        "deepMerge",
+        "getState",
+        "setState",
+        "subscribe",
+        "notify",
+        "uid",
+        "parseIngredients",
+        "parseTags",
+        "validateRecipe",
+        "addRecipe",
+        "updateRecipe",
+        "deleteRecipe",
+        "getAllTags",
+        "recipeMatches",
+        "currentFilteredSorted",
+        "firstInstructionLine",
+        "exportJSON",
+        "importJSON",
+        "copyIngredients",
+        "fallbackCopy",
+        "setFormErrors",
+        "resetForm",
+        "fillForm",
+        "onSubmitForm",
+        "renderTagFilter",
+        "renderList",
+        "renderControls",
+        "renderApp",
+        "bindEvents"
+      ],
+      "dom_hooks": [
+        "err-",
+        "formError",
+        "recipeForm",
+        "recipeId",
+        "title",
+        "recipeId",
+        "title",
+        "ingredients",
+        "instructions",
+        "tags",
+        "title",
+        "ingredients",
+        "instructions",
+        "tags",
+        "recipeId",
+        "tagFilter",
+        "recipeList",
+        "emptyState",
+        "title",
+        "searchInput",
+        "tagFilter",
+        "sortSelect",
+        "showPreviewToggle",
+        "year",
+        "recipeForm",
+        "resetBtn",
+        "searchInput",
+        "tagFilter",
+        "sortSelect",
+        "showPreviewToggle",
+        "exportBtn",
+        "importInput",
+        "title"
+      ]
+    }
+  ],
+  "stateManagement": {
+    "pattern": "vanilla-js",
+    "stores": []
+  },
+  "apiClients": [],
+  "styles": {
+    "system": "css",
+    "files": [
+      "css\\style.css"
+    ]
+  },
+  "assets": [],
+  "files": [
+    {
+      "path": "css\\style.css",
+      "lines": 52
+    },
+    {
+      "path": "index.html",
+      "lines": 87
+    },
+    {
+      "path": "js\\main.js",
+      "lines": 433
+    }
+  ]
+}

@@ -15,3 +15,12 @@ node_modules/
 packages/
 gemini-cli/
 result/
+legacy/
+optimization_plan/
+ui/
+generated_app/
+generated_log/
+# Streamlit secrets
+.streamlit/secrets.toml
+# Generation log files
+generation_log/
