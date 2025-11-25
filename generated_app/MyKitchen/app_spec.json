@@ -1,18 +1,17 @@
 {
   "app_name": "mykitchen",
   "display_name": "MyKitchen",
-  "description": "Help home cooks quickly save, organize, and retrieve their personal recipes offline.",
+  "description": "Help home cooks save, organize, and quickly retrieve their personal recipes.",
   "author": null,
   "version": "0.1.0",
   "template_name": "bare-bones-vanilla-main",
   "output_dir": "result",
   "custom_content": null,
   "features": [
-    "Create/Edit/Delete recipes",
-    "List all recipes with titles and optional subtitles",
-    "Search and filter recipes by title and tags",
-    "Export and import recipes as JSON",
-    "Structured ingredients with drag-and-drop reordering",
-    "Print-friendly view of recipes"
+    "Recipe Management",
+    "List & Preview",
+    "Search & Filter",
+    "Data Portability",
+    "Quick Actions"
   ]
 }

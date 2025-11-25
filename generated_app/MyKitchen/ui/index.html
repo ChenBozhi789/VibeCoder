@@ -1,75 +1,87 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyKitchen</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="utf-8">
+  <title>MyKitchen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
-    <div id="app">
-        <!-- Home/List View -->
-        <div id="list-view">
-            <header>
-                <h1>My Recipes</h1>
-                <button id="new-recipe-btn">New Recipe</button>
-                <input type="text" id="search-bar" placeholder="Search by title...">
-            </header>
-            <main id="recipe-list"></main>
-        </div>
-
-        <!-- Detail/Form View -->
-        <div id="form-view" class="hidden">
-            <header>
-                <h1 id="form-title">Create Recipe</h1>
-            </header>
-            <main>
-                <form id="recipe-form">
-                    <input type="hidden" id="recipe-id">
-                    <label for="title">Title</label>
-                    <input type="text" id="title" required>
-
-                    <label for="description">Description</label>
-                    <textarea id="description"></textarea>
-
-                    <label>Ingredients</label>
-                    <div id="ingredients-list"></div>
-                    <button type="button" id="add-ingredient-btn">Add Ingredient</button>
-
-                    <label for="instructions">Instructions</label>
-                    <textarea id="instructions" required></textarea>
-                    
-                    <label for="tags">Tags</label>
-                    <input type="text" id="tags" placeholder="e.g., vegan, dessert">
-
-                    <label for="favorite">Favorite</label>
-                    <input type="checkbox" id="favorite">
-
-                    <div class="form-actions">
-                        <button type="submit">Save</button>
-                        <button type="button" id="cancel-btn">Cancel</button>
-                        <button type="button" id="delete-btn" class="hidden">Delete</button>
-                    </div>
-                </form>
-            </main>
-        </div>
-
-                <!-- Settings View (Modal) -->
-        <div id="settings-view" class="hidden">
-            <div class="modal">
-                <div class="modal-content">
-                    <h2>Settings</h2>
-                    <button id="export-btn">Export Data</button>
-                    <button id="import-btn">Import Data</button>
-                    <input type="file" id="import-file" class="hidden" accept=".json">
-                    <button id="clear-data-btn">Clear All Data</button>
-                    <button id="close-settings-btn">Close</button>
-                </div>
-            </div>
-        </div>
-<button id="settings-btn">Settings</button>
+  <header class="app-header">
+    <h1 id="app-title" tabindex="0">MyKitchen</h1>
+    <div class="header-actions">
+      <button id="exportBtn" aria-label="Export all recipes">Export</button>
+      <label for="importInput" class="import-label" tabindex="0">Import
+        <input id="importInput" type="file" accept="application/json" aria-label="Import JSON">
+      </label>
     </div>
-    <script src="js/main.js"></script>
+  </header>
+
+  <main>
+    <section class="form-section" aria-labelledby="form-title">
+      <h2 id="form-title">Add / Edit Recipe</h2>
+      <div id="formError" class="sr-alert" aria-live="assertive"></div>
+      <form id="recipeForm" novalidate>
+        <input type="hidden" id="recipeId">
+        <div class="field">
+          <label for="title">Title<span aria-hidden="true">*</span></label>
+          <input id="title" name="title" type="text" required maxlength="160" aria-required="true" placeholder="e.g., Classic Pancakes">
+          <div class="error-msg" id="err-title" aria-live="polite"></div>
+        </div>
+        <div class="field">
+          <label for="ingredients">Ingredients<span aria-hidden="true">*</span></label>
+          <textarea id="ingredients" name="ingredients" placeholder="One per line, e.g.:
+2 cups flour
+1 egg
+1 tsp salt" aria-required="true"></textarea>
+          <div class="error-msg" id="err-ingredients" aria-live="polite"></div>
+        </div>
+        <div class="field">
+          <label for="instructions">Instructions</label>
+          <textarea id="instructions" name="instructions" placeholder="Step-by-step directions"></textarea>
+          <div class="error-msg" id="err-instructions" aria-live="polite"></div>
+        </div>
+        <div class="field">
+          <label for="tags">Tags (comma-separated)</label>
+          <input id="tags" name="tags" type="text" placeholder="e.g., breakfast, vegan">
+          <div class="error-msg" id="err-tags" aria-live="polite"></div>
+        </div>
+        <div class="form-actions">
+          <button id="saveBtn" type="submit">Save</button>
+          <button id="resetBtn" type="button">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="controls-section" aria-labelledby="controls-title">
+      <h2 id="controls-title">Search, Filter, Sort, Settings</h2>
+      <div class="controls">
+        <input id="searchInput" type="search" placeholder="Search by title or ingredient" aria-label="Search">
+        <select id="tagFilter" aria-label="Filter by tag">
+          <option value="all" selected>All tags</option>
+        </select>
+        <select id="sortSelect" aria-label="Sort recipes">
+          <option value="updatedAt_desc" selected>Recently updated</option>
+          <option value="title_asc">Title A–Z</option>
+          <option value="title_desc">Title Z–A</option>
+        </select>
+        <label class="toggle">
+          <input id="showPreviewToggle" type="checkbox" aria-label="Toggle instructions preview"> Show preview
+        </label>
+      </div>
+    </section>
+
+    <section class="list-section" aria-labelledby="list-title">
+      <h2 id="list-title">Recipes</h2>
+      <div id="emptyState" class="empty-state" hidden>No recipes yet. Add your first recipe above.</div>
+      <ul id="recipeList" role="list"></ul>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <small>&copy; <span id="year"></span> MyKitchen</small>
+  </footer>
+
+  <script src="js/main.js"></script>
 </body>
 </html>

@@ -129,6 +129,12 @@ def main():
             api_key=os.environ.get("GEMINI_API_KEY"),
             max_retries=3
         )
+
+        gemini_3_pro = LiteLLMModel(
+            model_id="gemini/gemini-3-pro-preview",
+            api_key=os.environ.get("GEMINI_API_KEY"),
+            max_retries=3
+        )
         
         # Create agents
         prd_agent = ToolCallingAgent(
@@ -152,6 +158,7 @@ def main():
         max_retries = 3
         retry_delay = 10  # seconds
 
+        print("1. PRD agent is starting")
         for attempt in range(max_retries):
             try:
                 print(f"PRD Agent attempt {attempt + 1}/{max_retries}")
@@ -194,13 +201,15 @@ def main():
                 get_current_project,
                 generate_ui_structure_json
             ],   
-            model=gemini_pro_model,
+            # model=gemini_pro_model,
+            model=OpenAIServerModel('gpt-5'),
             additional_authorized_imports=['json'],
         )
 
         ui_task = prompt_loader.load_agent_prompt("ui_agent")
 
         # Add retry mechanism for UI Agent
+        print("2. UI agent is starting")
         for attempt in range(max_retries):
             try:
                 print(f"UI Agent attempt {attempt + 1}/{max_retries}")
@@ -273,7 +282,8 @@ def main():
             read_ui_structure_json,
             generate_ui_structure_json
         ],
-        model=gemini_pro_model,
+        model=gemini_3_pro,
+        # model=OpenAIServerModel('gpt-5'),
         additional_authorized_imports=['json'],
         max_steps=30,
         )
@@ -284,6 +294,7 @@ def main():
         max_retries = 3
         retry_delay = 10  # seconds
 
+        print("3. Implementation agent is starting")
         for attempt in range(max_retries):
             try:
                 print(f"Implementation Agent attempt {attempt + 1}/{max_retries}")
@@ -316,13 +327,15 @@ def main():
             get_current_project,
             validate_implementation
         ],
-        model=gemini_pro_model,
+        # model=gemini_pro_model,
+        model=OpenAIServerModel('gpt-5'),
         max_steps=10,
         )
 
         validation_task = prompt_loader.load_agent_prompt("validation_agent")
 
         # Add retry mechanism for Validation Agent
+        print("4. Validation agent is starting")
         for attempt in range(max_retries):
             try:
                 print(f"Validation Agent attempt {attempt + 1}/{max_retries}")
@@ -360,12 +373,13 @@ def main():
             read_project_requirements
         ],
         model=gemini_pro_model,
+        # model=OpenAIServerModel('gpt-5'),
         )
 
         qa_task = prompt_loader.load_agent_prompt("qa_agent")
 
         # Add retry mechanism for QA Agent
-        print("Start running QA agent")
+        print("5. QA agent is starting")
         for attempt in range(max_retries):
             try:
                 print(f"QA Agent attempt {attempt + 1}/{max_retries}")
@@ -414,7 +428,7 @@ def main():
                   read_project_requirements,
                   generate_vanilla_js_code
                ],
-               model=gemini_pro_model,
+               model=gemini_pro_model,               
                max_steps=30,  # Increased steps for more thorough fixing
             )
 
@@ -424,6 +438,7 @@ def main():
             max_retries = 3
             retry_delay = 10  # seconds
 
+            print("6. Auto Fix agent is starting")
             for attempt in range(max_retries):
                 try:
                     print(f"Auto Fix agent attempt {attempt + 1}/{max_retries}")

@@ -181,6 +181,8 @@ def display_app_iframe(app_path):
     """Display the app in an iframe with better handling of CSS and JS"""
     if os.path.exists(app_path):
         try:
+            import re
+            
             # Read the HTML content
             with open(app_path, 'r', encoding='utf-8') as f:
                 html_content = f.read()
@@ -189,30 +191,41 @@ def display_app_iframe(app_path):
             app_folder = os.path.dirname(os.path.dirname(app_path))
             ui_folder = os.path.dirname(app_path)
             
-            # Check if we have CSS and JS files
-            css_file = os.path.join(ui_folder, 'css', 'style.css')
-            js_file = os.path.join(ui_folder, 'js', 'main.js')
-            
             # Create a more complete HTML with embedded CSS and JS
             enhanced_html = html_content
             
-            # Embed CSS if it exists
-            if os.path.exists(css_file):
-                with open(css_file, 'r', encoding='utf-8') as f:
-                    css_content = f.read()
-                enhanced_html = enhanced_html.replace(
-                    '<link rel="stylesheet" href="css/style.css">',
-                    f'<style>{css_content}</style>'
-                )
+            # Find and inline all CSS files using regex
+            # Match any link tag containing both href to css file and rel="stylesheet"
+            css_pattern = r'<link\s+[^>]*href=["\']([^"\']*css/[^"\']*\.css)["\'][^>]*rel=["\']stylesheet["\'][^>]*>|<link\s+[^>]*rel=["\']stylesheet["\'][^>]*href=["\']([^"\']*css/[^"\']*\.css)["\'][^>]*>'
+            css_matches = list(re.finditer(css_pattern, enhanced_html, re.IGNORECASE))
             
-            # Embed JS if it exists
-            if os.path.exists(js_file):
-                with open(js_file, 'r', encoding='utf-8') as f:
-                    js_content = f.read()
-                enhanced_html = enhanced_html.replace(
-                    '<script src="js/main.js"></script>',
-                    f'<script>{js_content}</script>'
-                )
+            # Process matches in reverse order to maintain string positions
+            for match in reversed(css_matches):
+                css_url = match.group(1) or match.group(2)  # Get href from either group
+                if css_url:
+                    css_file = os.path.join(ui_folder, css_url)
+                    
+                    if os.path.exists(css_file):
+                        with open(css_file, 'r', encoding='utf-8') as f:
+                            css_content = f.read()
+                        # Replace the link tag with embedded style
+                        enhanced_html = enhanced_html[:match.start()] + f'<style>{css_content}</style>' + enhanced_html[match.end():]
+            
+            # Find and inline all JS files using regex
+            # Match any script tag with src pointing to js files
+            js_pattern = r'<script\s+[^>]*src=["\']([^"\']*js/[^"\']*\.js)["\'][^>]*>\s*</script>'
+            js_matches = list(re.finditer(js_pattern, enhanced_html, re.IGNORECASE))
+            
+            # Process matches in reverse order to maintain string positions
+            for match in reversed(js_matches):
+                js_url = match.group(1)
+                js_file = os.path.join(ui_folder, js_url)
+                
+                if os.path.exists(js_file):
+                    with open(js_file, 'r', encoding='utf-8') as f:
+                        js_content = f.read()
+                    # Replace the script tag with embedded script
+                    enhanced_html = enhanced_html[:match.start()] + f'<script>{js_content}</script>' + enhanced_html[match.end():]
             
             # Create a data URL for the enhanced HTML content
             import base64

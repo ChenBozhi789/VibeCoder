@@ -16,6 +16,8 @@ packages/
 gemini-cli/
 result/
 legacy/
+optimization_plan/
+ui/
 # Streamlit secrets
 .streamlit/secrets.toml
 # Generation log files

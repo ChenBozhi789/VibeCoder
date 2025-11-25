@@ -1,77 +1,93 @@
+# Implementation Plan for MyKitchen
+## Overview
+MyKitchen is an offline-friendly personal recipe manager. Users can create, search, filter, edit, and delete recipes; optionally view an instructions preview in the list; export/import data; and quickly copy ingredients.
+## Data Model
+- Recipe: { id, title, ingredients[], instructions, tags[], createdAt, updatedAt }
+## Features and Mapping
+- CRUD: Add/Edit/Delete recipes
+- List & Preview: Optional first-line of instructions in list (Settings.toggle showPreview)
+- Search: Case-insensitive across title and ingredients
+- Filter: By tag (single select). Tag options derive from all recipes
+- Sort: updatedAt (newest), title A–Z/Z–A
+- Data Portability: Export JSON; Import with merge or replace
+- Quick Actions: Copy ingredients from list item
+## Technical Architecture
+- Vanilla JS, no modules; single page (index.html).
+- State in memory with appState; persistence via localStorage under 'MyKitchen:state:v1'.
+- Render functions recompute list from state; event-driven updates.
+- Validation: title required; at least 1 ingredient; reasonable lengths.
+- Accessibility: aria-live for errors; labels, keyboard focus.
+## Files to Modify
+- ui/index.html: Structure for form, controls, list, settings, import/export, actions.
+- ui/css/style.css: Reuse palette; badges for tags.
+- ui/js/main.js: Full business logic, state, persistence, validation, import/export, copy.
+## Implementation Steps
+1) Core: storage (load/save), state (setState/subscribe), utilities (parseIngredients/tags).
+2) Form: handle submit/update, reset, validation and error messages.
+3) Controls: search input, tag filter select, sort select, settings toggle.
+4) List: render items with optional preview, tags, actions (Edit/Delete/Copy).
+5) Import/Export: export JSON; import JSON file with confirm for replace, otherwise merge (by id).
+6) Polish: empty states, aria-live errors, clipboard fallback, responsive layout.
+## PRD and Spec References (truncated)
+# Product Requirement Document
 
-# Implementation Plan for MyKitchen App
+**App Name:** MyKitchen  
+**Goal/Purpose:** Help home cooks save, organize, and quickly retrieve their personal recipes. The app provides a fast, offline-friendly place to capture ingredients and instructions, browse saved recipes, and prepare meals without distraction.
 
-## 1. Technical Architecture
+**Target Users:** Home cooks, food enthusiasts, and anyone who wants a simple, private, and reliable way to store personal recipes and access them later while cooking.
 
-*   **State Management:** Vanilla JavaScript will be used for state management. A single global object, `app.state`, will be defined in `js/main.js` to hold the application's state, including the list of all recipes. This approach is simple and sufficient for the scope of this project.
+## Core Features
+- Recipe Management: Create, view, edit, and delete recipes with a clean, distraction-free interface.
+- List & Preview: The home screen lists all recipe titles. Optionally, a short preview (first line of instructions) can be toggled in Settings.
+- Search & Filter: Instant search across recipe titles and ingre
 
-*   **Data Persistence:** `localStorage` will be used for data persistence, as specified in the PRD. All recipes will be stored as a JSON string under the key `MyKitchen.recipes`.
+-- app_spec.json --
+{
+  "app_name": "mykitchen",
+  "display_name": "MyKitchen",
+  "description": "Help home cooks save, organize, and quickly retrieve their personal recipes.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Recipe Management",
+    "List & Preview",
+    "Search & Filter",
+    "Data Portabili
 
-*   **HTML Structure:** The application will be a single-page application (SPA). The `index.html` file will contain the HTML for all three views:
-    *   **Home/List View:** Displays the list of recipes.
-    *   **Detail/Form View:** Used for creating and editing recipes.
-    *   **Settings View:** A modal for import/export and other settings.
-    JavaScript will be used to toggle the visibility of these views.
+-- UI_STRUCTURE.json --
+{
+  "appName": "",
+  "version": "1.0.0",
+  "rootDir": "ui/",
+  "routes": [
+    {
+      "path": "/",
+      "component": "index.html"
+    }
+  ],
+  "components": [
+    {
+      "name": "Index",
+      "path": "index.html",
+      "type": "page",
+      "props": [],
+      "state": [],
+      "events": [
+        "click",
+        "input",
+        "submit",
+        "change"
+      ],
+      "imports": [
+       
 
-*   **Error Handling:** Error handling will be implemented for data import/export operations and potential `localStorage` quota limits. Simple alert messages will be used to provide feedback to the user.
-
-## 2. Implementation Phases
-
-1.  **Core Infrastructure (Phase 1):**
-    *   Set up the basic HTML structure in `index.html` for all views.
-    *   Implement helper functions in `js/main.js` for data persistence (reading from and writing to `localStorage`).
-    *   Define the global `app.state` object in `js/main.js`.
-
-2.  **Recipe Management (CRUD - Phase 2):**
-    *   Implement the "Create Recipe" functionality in the Detail/Form View.
-    *   Implement the "Read Recipe" functionality to render the list of recipes in the Home/List View.
-    *   Implement the "Update Recipe" functionality in the Detail/Form View.
-    *   Implement the "Delete Recipe" functionality with a confirmation dialog.
-
-3.  **Search and Filter (Phase 3):**
-    *   Implement search functionality to filter recipes by title in real-time.
-    *   Implement filtering of recipes based on tags.
-
-4.  **Data Portability (Phase 4):**
-    *   Implement the "Export Data" feature to allow users to download their recipes as a JSON file.
-    *   Implement the "Import Data" feature to allow users to upload recipes from a JSON file.
-
-5.  **UI Enhancements and Finalization (Phase 5):**
-    *   Implement drag-and-drop functionality for reordering ingredients.
-    *   Add a print-friendly view for individual recipes.
-    *   Implement the "Clear All Data" functionality with a confirmation dialog.
-    *   Final testing and bug fixes.
-
-## 3. File Structure Plan
-
-*   `ui/index.html`: This file will contain the HTML for all the different views of the application.
-*   `ui/css/style.css`: This file will contain all the CSS styles for the application.
-*   `ui/js/main.js`: This file will contain all the JavaScript code for the application, including state management, data persistence, event handling, and DOM manipulation.
-
-## 4. Implementation Details
-
-### `js/main.js`
-
-*   **Global State:**
-    ```javascript
-    const app = {
-      state: {
-        recipes: [],
-        currentView: 'list', // 'list', 'form', or 'settings'
-        selectedRecipeId: null,
-      },
-      // ... other methods
-    };
-    ```
-
-*   **Data Persistence:**
-    *   `loadRecipes()`: Loads recipes from `localStorage` into `app.state.recipes`.
-    *   `saveRecipes()`: Saves `app.state.recipes` to `localStorage`.
-
-*   **Rendering:**
-    *   `renderListView()`: Renders the list of recipes in the Home/List View.
-    *   `renderFormView()`: Renders the Detail/Form View for creating or editing a recipe.
-    *   `renderSettingsView()`: Renders the Settings View.
-
-*   **Event Handlers:**
-    *   Event listeners for "New Recipe," "Save," "Delete," "Search," "Filter," "Import," "Export," and "Clear All Data" buttons will be set up.
+## Implementation Status
+- Implemented PRD-aligned recipe model and UI.
+- CRUD, search (title+ingredients), tag filter, sort, and settings (show preview).
+- Import/export with merge or replace.
+- Copy ingredients quick action with clipboard fallback.
+- Persistence via localStorage.
+- Accessibility messaging for errors.

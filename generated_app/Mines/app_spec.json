@@ -1,0 +1,19 @@
+{
+  "app_name": "mines",
+  "display_name": "Minesweeper Game",
+  "description": "Deliver a fast, clean, offline-capable Minesweeper game that lets players enjoy quick logic puzzles on any device.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "New Game & Difficulty Selection",
+    "Grid Interaction & Rules",
+    "Flagging & Question Marks",
+    "Timer & Counters",
+    "Stats & Best Times",
+    "Accessibility & Controls",
+    "Data Portability"
+  ]
+}

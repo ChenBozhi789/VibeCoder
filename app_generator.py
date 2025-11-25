@@ -93,6 +93,7 @@ if __name__ == "__main__":
     max_retries = 3
     retry_delay = 10  # seconds
 
+    print("1. PRD agent is starting")
     for attempt in range(max_retries):
         try:
             print(f"🚀 PRD Agent attempt {attempt + 1}/{max_retries}")
@@ -142,6 +143,7 @@ if __name__ == "__main__":
     ui_task = prompt_loader.load_agent_prompt("ui_agent")
 
     # Add retry mechanism for UI Agent
+    print("2. UI agent is starting")
     for attempt in range(max_retries):
         try:
             print(f"🚀 UI Agent attempt {attempt + 1}/{max_retries}")
@@ -228,6 +230,7 @@ if __name__ == "__main__":
     max_retries = 3
     retry_delay = 10  # seconds
 
+    print("3. Implementation agent is starting")
     for attempt in range(max_retries):
         try:
             print(f"🚀 Implementation Agent attempt {attempt + 1}/{max_retries}")
@@ -267,6 +270,7 @@ if __name__ == "__main__":
     validation_task = prompt_loader.load_agent_prompt("validation_agent")
 
     # Add retry mechanism for Validation Agent
+    print("4. Validation agent is starting")
     for attempt in range(max_retries):
         try:
             print(f"🚀 Validation Agent attempt {attempt + 1}/{max_retries}")
@@ -309,7 +313,7 @@ if __name__ == "__main__":
     qa_task = prompt_loader.load_agent_prompt("qa_agent")
 
     # Add retry mechanism for QA Agent
-    print("🚀 Start running QA agent")
+    print("5. QA agent is starting")
     for attempt in range(max_retries):
         try:
             print(f"🚀 QA Agent attempt {attempt + 1}/{max_retries}")
@@ -369,6 +373,7 @@ if __name__ == "__main__":
         max_retries = 3
         retry_delay = 10  # seconds
 
+        print("6. Auto Fix agent is starting")
         for attempt in range(max_retries):
             try:
                 print(f"🚀 Auto Fix agent attempt {attempt + 1}/{max_retries}")

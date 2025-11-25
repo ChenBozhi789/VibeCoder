@@ -1,0 +1,19 @@
+{
+  "app_name": "bluebooking",
+  "display_name": "BlueBooking",
+  "description": "Provide a simple, offline-capable reservation manager that lets users create, view, edit, and cancel bookings while preventing time conflicts.",
+  "author": null,
+  "version": "0.1.0",
+  "template_name": "bare-bones-vanilla-main",
+  "output_dir": "result",
+  "custom_content": null,
+  "features": [
+    "Reservation management with date/time pickers",
+    "Availability checks to prevent overlapping reservations",
+    "Calendar and List views for visualizing bookings",
+    "Create, Edit, Delete reservations",
+    "Search & Filter by date range and status",
+    "Data Portability with JSON export/import",
+    "Basic Form Validation for required fields"
+  ]
+}
