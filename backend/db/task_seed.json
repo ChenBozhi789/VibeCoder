@@ -1,0 +1,44 @@
+[
+  {
+    "task_id": "51bfd525-fafd-47f9-822d-a8060283f14a",
+    "status": "completed",
+    "progress": 100,
+    "logs": [
+      "Task created, waiting to start...",
+      "Environment initialized",
+      "UI generation completed",
+      "✅ As configured, only the first three stages (PRD / UI / Implementation) were run; QA and AutoFix were skipped."
+    ],
+    "result": {
+      "app_name": "Personal Todo",
+      "path": "C:\\Users\\cbz\\Desktop\\VibeCoder\\VibeCoder\\generated_app\\51bfd525-fafd-47f9-822d-a8060283f14a"
+    },
+    "created_at": { "$date": "2026-02-18T10:00:00Z" },
+    "updated_at": { "$date": "2026-02-18T10:05:00Z" }
+  },
+  {
+    "task_id": "62cfe636-gbge-58g0-933e-b9170394f25b",
+    "status": "running",
+    "progress": 45,
+    "logs": [
+      "Task created",
+      "Analyzing PRD...",
+      "Generating PRD document"
+    ],
+    "result": null,
+    "created_at": { "$date": "2026-02-18T11:20:00Z" },
+    "updated_at": { "$date": "2026-02-18T11:22:30Z" }
+  },
+  {
+    "task_id": "73dgf747-hchf-69h1-044f-c0281405g36c",
+    "status": "failed",
+    "progress": 10,
+    "logs": [
+      "Task created",
+      "❌ Error occurred: API Key is invalid"
+    ],
+    "result": null,
+    "created_at": { "$date": "2026-02-17T09:00:00Z" },
+    "updated_at": { "$date": "2026-02-17T09:01:00Z" }
+  }
+]

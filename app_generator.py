@@ -1,15 +1,19 @@
+"""
+纯后端 App 生成管线：不包含任何 API 或前端相关逻辑。
+通过 `python app_generator.py` 直接运行，执行 PRD → UI → Implementation → QA → AutoFix。
+与 API 调用、任务状态、HTTP 等无关；API 侧入口见 backend/services/generator_service.py。
+"""
 from smolagents import PlanningStep, CodeAgent, ToolCallingAgent, tool
-from smolagents.models import OpenAIServerModel, LiteLLMModel
+from smolagents.models import OpenAIServerModel
+from backend.utils.normalized_litellm_model import NormalizedLiteLLMModel
 from am_tools import (
     list_files, write_file, mkdir, read_file, build_app_spec_from_docs,
-    analyze_ui_structure, generate_functional_code, implement_data_persistence,
-    implement_state_management, validate_implementation, read_project_requirements,
-    generate_ui_structure_json, read_ui_structure_json,
+    implement_data_persistence, implement_state_management, validate_implementation,
+    read_project_requirements, generate_ui_structure_json, read_ui_structure_json,
     # Agent state management tools
     get_user_requirements, set_app_name, set_current_project, list_existing_projects,
     get_current_project, get_app_name, get_prd_path, get_spec_path, get_template_path,
     get_ui_design_path, get_app_folder_path, set_ui_memory, get_ui_memory, get_all_ui_memory,
-    get_feedback_tickets_path, get_enhancement_summary_path, get_test_report_path,
     copy_template_to_ui_folder, analyze_qa_report_for_fixes_needed, generate_vanilla_js_code
 ) 
 from pathlib import Path
@@ -23,8 +27,19 @@ import litellm
 import sys
 if sys.platform.startswith('win'):
     import codecs
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+    # Only detach if the stream supports it (not available in Streamlit)
+    try:
+        if hasattr(sys.stdout, 'detach'):
+            sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
+    except (AttributeError, OSError):
+        pass  # Streamlit or other environments may not support detach
+    
+    try:
+        if hasattr(sys.stderr, 'detach'):
+            sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+    except (AttributeError, OSError):
+        pass  # Streamlit or other environments may not support detach
+    
     # Set environment variables for UTF-8
     os.environ['PYTHONIOENCODING'] = 'utf-8'
     os.environ['PYTHONUTF8'] = '1'
@@ -51,14 +66,20 @@ from am_tools import agent_state
 os.environ['LITELLM_LOG'] = 'DEBUG'
 
 # initialize LiteLLMModel
-gemini_model = LiteLLMModel(
+gemini_model = NormalizedLiteLLMModel(
     model_id="gemini/gemini-2.5-flash",
     api_key=os.environ.get("GEMINI_API_KEY"),
     max_retries=3
 )
 
-gemini_pro_model = LiteLLMModel(
+gemini_pro_model = NormalizedLiteLLMModel(
     model_id="gemini/gemini-2.5-pro",
+    api_key=os.environ.get("GEMINI_API_KEY"),
+    max_retries=3
+)
+
+gemini_3_pro_preview_model = NormalizedLiteLLMModel(
+    model_id="gemini/gemini-3.1-pro-preview",
     api_key=os.environ.get("GEMINI_API_KEY"),
     max_retries=3
 )
@@ -247,45 +268,7 @@ if __name__ == "__main__":
             else:
                 print("🔄 All retries exhausted. Continuing with validation phase...")
 
-    print("\n--- Implementation Validation ---")
-
-    # 4. Validation - Quick check that everything works together
-    validation_agent = ToolCallingAgent(
-    tools=[
-        read_file,
-        write_file,
-        list_files,
-        get_app_name,
-        get_app_folder_path,
-        set_current_project,
-        list_existing_projects,
-        get_current_project,
-        validate_implementation
-    ],
-    model=gemini_pro_model,
-    max_steps=10,  # limit steps to prevent token overflow
-    )
-
-    # Load validation task from template
-    validation_task = prompt_loader.load_agent_prompt("validation_agent")
-
-    # Add retry mechanism for Validation Agent
-    print("4. Validation agent is starting")
-    for attempt in range(max_retries):
-        try:
-            print(f"🚀 Validation Agent attempt {attempt + 1}/{max_retries}")
-            validation_agent.run(validation_task)
-            print("✅ Validation Agent completed successfully")
-            break
-        except Exception as e:
-            print(f"❌ Validation Agent attempt {attempt + 1} failed: {e}")
-            print(f"Error type: {type(e).__name__}")
-            
-            if attempt < max_retries - 1:
-                print(f"⏳ Waiting {retry_delay} seconds before retry...")
-                time.sleep(retry_delay)
-            else:
-                print("🔄 All retries exhausted. Continuing with QA phase...")
+    print("\n--- QA Testing Phase ---")
 
     # 4. QA agent
     qa_agent = ToolCallingAgent(
@@ -313,7 +296,7 @@ if __name__ == "__main__":
     qa_task = prompt_loader.load_agent_prompt("qa_agent")
 
     # Add retry mechanism for QA Agent
-    print("5. QA agent is starting")
+    print("4. QA agent is starting")
     for attempt in range(max_retries):
         try:
             print(f"🚀 QA Agent attempt {attempt + 1}/{max_retries}")
@@ -393,4 +376,3 @@ if __name__ == "__main__":
         print("✅ No fixes needed! Skipping Auto Fix agent.")
         print(f"💡 Reason: {fixes_analysis}")
         print("🚀 Proceeding to next phase...")
-

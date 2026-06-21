@@ -1,0 +1,47 @@
+{
+    "components": [
+        {
+            "type": "container",
+            "id": "game-container",
+            "children": [
+                {
+                    "type": "header",
+                    "children": [
+                        {
+                            "type": "heading",
+                            "text": "CN Mine Sweeper"
+                        },
+                        {
+                            "type": "div",
+                            "id": "score-board",
+                            "children": [
+                                {
+                                    "type": "span",
+                                    "text": "Score: "
+                                },
+                                {
+                                    "type": "span",
+                                    "id": "score"
+                                },
+                                {
+                                    "type": "button",
+                                    "id": "reset-button",
+                                    "text": "Reset Game"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "main",
+                    "children": [
+                        {
+                            "type": "div",
+                            "id": "grid-container"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

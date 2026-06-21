@@ -24,3 +24,9 @@ generated_log/
 .streamlit/secrets.toml
 # Generation log files
 generation_log/
+# Local IDE / runtime
+.claude/
+.current_project
+backend/data/task_store.json
+# Demo media (keep locally)
+video/
